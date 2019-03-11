@@ -12,17 +12,17 @@ using Cave.Logging;
 namespace Cave.Service
 {
     /// <summary>
-    /// Provides simple ugly event logging for windows
+    /// Provides simple ugly event logging for windows.
     /// </summary>
     public sealed class LogEventLog : LogReceiver, IDisposable
     {
         EventLog m_EventLog = null;
         LogLevel m_LogLevel = LogLevel.Information;
 
-        /// <summary>Retrieves the process name of the process generating the messages (defaults to the program name)</summary>
+        /// <summary>Retrieves the process name of the process generating the messages (defaults to the program name).</summary>
         public readonly string ProcessName;
 
-        /// <summary>Retrieves the target event log name</summary>
+        /// <summary>Retrieves the target event log name.</summary>
         public readonly string LogName;
 
         void Init()
@@ -46,7 +46,7 @@ namespace Cave.Service
         }
 
         /// <summary>
-        /// Creates a new instance of <see cref="LogEventLog"/> with the default process name and at the default log: "Application:ProcessName"
+        /// Creates a new instance of <see cref="LogEventLog"/> with the default process name and at the default log: "Application:ProcessName".
         /// </summary>
         public LogEventLog()
         {
@@ -61,7 +61,7 @@ namespace Cave.Service
         }
 
         /// <summary>
-        /// Creates a new instance using a specified EventLog object
+        /// Creates a new instance using a specified EventLog object.
         /// </summary>
         /// <param name="eventLog"></param>
         public LogEventLog(EventLog eventLog)
@@ -77,7 +77,7 @@ namespace Cave.Service
         }
 
         /// <summary>
-        /// Creates a new instance of <see cref="LogEventLog"/>
+        /// Creates a new instance of <see cref="LogEventLog"/>.
         /// </summary>
         public LogEventLog(EventLog eventLog, string processName)
         {
@@ -171,7 +171,7 @@ namespace Cave.Service
             }
         }
 
-        /// <summary>Closes the <see cref="LogReceiver" /></summary>
+        /// <summary>Closes the <see cref="LogReceiver" />.</summary>
         public override void Close()
         {
             Flush();
@@ -181,12 +181,12 @@ namespace Cave.Service
         #endregion
 
         /// <summary>
-        /// Returns the name of the event log
+        /// Returns the name of the event log.
         /// </summary>
         public string Name => m_EventLog.LogDisplayName;
 
         /// <summary>
-        /// LogEventLog
+        /// LogEventLog.
         /// </summary>
         public override string LogSourceName => "LogEventLog";
 

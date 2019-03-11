@@ -6,7 +6,7 @@ using Cave.Logging;
 namespace Cave.Service
 {
     /// <summary>
-    /// Provides access to the *nix logging deamon
+    /// Provides access to the *nix logging deamon.
     /// </summary>
     public static class Syslog
     {
@@ -14,7 +14,7 @@ namespace Cave.Service
         static object m_SyncRoot = new object();
 
         /// <summary>
-        /// Opens logging to the logging deamon
+        /// Opens logging to the logging deamon.
         /// </summary>
         public static void Init()
         {
@@ -22,7 +22,7 @@ namespace Cave.Service
         }
 
         /// <summary>
-        /// Opens logging to the logging deamon
+        /// Opens logging to the logging deamon.
         /// </summary>
         public static void Init(SyslogOption option, SyslogFacility facility)
         {
@@ -37,7 +37,7 @@ namespace Cave.Service
         }
 
         /// <summary>
-        /// Logs a message
+        /// Logs a message.
         /// </summary>
         public static void Write(SyslogSeverity severity, SyslogFacility facility, string msg)
         {
@@ -54,7 +54,7 @@ namespace Cave.Service
         }
 
         /// <summary>
-        /// Closes the connection to the logging deamon
+        /// Closes the connection to the logging deamon.
         /// </summary>
         public static void Close()
         {

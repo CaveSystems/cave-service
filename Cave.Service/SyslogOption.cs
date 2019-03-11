@@ -3,7 +3,7 @@ using System;
 namespace Cave.Service
 {
     /// <summary>
-    /// Options needed for the *nix logging deamons
+    /// Options needed for the *nix logging deamons.
     /// </summary>
 
     [Flags]

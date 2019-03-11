@@ -11,7 +11,7 @@ using Cave.Logging;
 namespace Cave.Service
 {
     /// <summary>
-    /// Provides common service tasks for the server service
+    /// Provides common service tasks for the server service.
     /// </summary>
     public static class ServiceHelper
     {
@@ -21,7 +21,7 @@ namespace Cave.Service
         }
 
         /// <summary>
-        /// Checks whether the server service is installed or not
+        /// Checks whether the server service is installed or not.
         /// </summary>
         public static bool IsInstalled
         {
@@ -43,7 +43,7 @@ namespace Cave.Service
         }
 
         /// <summary>
-        /// Checks whether the server service is running or not
+        /// Checks whether the server service is running or not.
         /// </summary>
         public static bool IsRunning
         {
@@ -65,7 +65,7 @@ namespace Cave.Service
         }
 
         /// <summary>
-        /// Stops the server service
+        /// Stops the server service.
         /// </summary>
         /// <returns></returns>
         public static bool StopService()
@@ -101,7 +101,7 @@ namespace Cave.Service
         }
 
         /// <summary>
-        /// Starts the server service
+        /// Starts the server service.
         /// </summary>
         /// <returns></returns>
         public static bool StartService()
@@ -137,7 +137,7 @@ namespace Cave.Service
         }
 
         /// <summary>
-        /// Installs the server service
+        /// Installs the server service.
         /// </summary>
         /// <returns></returns>
         public static bool InstallService()
@@ -165,7 +165,7 @@ namespace Cave.Service
         }
 
         /// <summary>
-        /// Uninstalls the server service
+        /// Uninstalls the server service.
         /// </summary>
         /// <returns></returns>
         public static bool UnInstallService()

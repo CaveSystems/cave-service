@@ -7,7 +7,7 @@ using System;
 namespace Cave.Service
 {
     /// <summary>
-    /// Provides all _SC_ constants
+    /// Provides all _SC_ constants.
     /// </summary>
     public enum SysConf
     {

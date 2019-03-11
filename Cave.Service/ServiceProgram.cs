@@ -23,7 +23,7 @@ using System.Runtime.ExceptionServices;
 namespace Cave.Service
 {
     /// <summary>
-    /// Provides a service definiton providing deamon commandline functionality on linux and windows service functionality on windows
+    /// Provides a service definiton providing deamon commandline functionality on linux and windows service functionality on windows.
     /// </summary>
     [DesignerCategory("Code")]
     public abstract class ServiceProgram : System.ServiceProcess.ServiceBase, ILogSource
@@ -62,7 +62,7 @@ namespace Cave.Service
 
         #region abstract worker definition
         /// <summary>
-        /// Worker function to be implemented by the real program
+        /// Worker function to be implemented by the real program.
         /// </summary>
         protected abstract void Worker();
 
@@ -145,7 +145,7 @@ namespace Cave.Service
         }
 
         /// <summary>
-        /// Does a commandline run
+        /// Does a commandline run.
         /// </summary>
         void CommandLineRun()
         {
@@ -485,12 +485,12 @@ namespace Cave.Service
 
         #region public properties
         /// <summary>
-        /// Obtains the <see cref="AssemblyVersionInfo"/> of the service
+        /// Obtains the <see cref="AssemblyVersionInfo"/> of the service.
         /// </summary>
         public AssemblyVersionInfo VersionInfo { get; private set; }
 
         /// <summary>
-        /// Returns the string "Service &lt;Name&gt;"
+        /// Returns the string "Service &lt;Name&gt;".
         /// </summary>
         public virtual string LogSourceName => "Service " + VersionInfo.Product;
         #endregion

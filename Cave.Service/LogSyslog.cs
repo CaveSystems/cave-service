@@ -5,7 +5,7 @@ using Cave.Logging;
 namespace Cave.Service
 {
     /// <summary>
-    /// Provides a log receiver using the posix syslog (libc) implementation
+    /// Provides a log receiver using the posix syslog (libc) implementation.
     /// </summary>
     public sealed class LogSyslog : LogReceiver
     {
@@ -14,7 +14,7 @@ namespace Cave.Service
 
         /// <summary>Creates a new instance.</summary>
         /// <returns></returns>
-        /// <exception cref="Exception">Only one instance allowed!</exception>
+        /// <exception cref="Exception">Only one instance allowed!.</exception>
         public static LogSyslog Create()
         {
             lock (SyncRoot)
@@ -37,7 +37,7 @@ namespace Cave.Service
         {
         }
 
-        /// <summary>Closes the <see cref="T:Cave.Logging.LogReceiver" /></summary>
+        /// <summary>Closes the <see cref="T:Cave.Logging.LogReceiver" />.</summary>
         public override void Close()
         {
             base.Close();
@@ -49,7 +49,7 @@ namespace Cave.Service
         }
 
         /// <summary>
-        /// facility to use
+        /// facility to use.
         /// </summary>
         public SyslogFacility Facility { get; set; }
 
@@ -65,7 +65,7 @@ namespace Cave.Service
         }
 
         /// <summary>
-        /// Obtains the name 'LogSyslog'
+        /// Obtains the name 'LogSyslog'.
         /// </summary>
         public override string LogSourceName => "LogSyslog";
     }

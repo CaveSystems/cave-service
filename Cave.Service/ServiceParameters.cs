@@ -4,12 +4,12 @@ using Cave.Logging;
 namespace Cave.Service
 {
     /// <summary>
-    /// Provides service runtime variables
+    /// Provides service runtime variables.
     /// </summary>
     public sealed class ServiceParameters : ILogSource
     {
         /// <summary>
-        /// Creates new service parameters
+        /// Creates new service parameters.
         /// </summary>
         /// <param name="hasAdminRights"></param>
         /// <param name="cmdLineMode"></param>
@@ -28,17 +28,17 @@ namespace Cave.Service
         public bool UserInteractive { get; private set; }
 
         /// <summary>
-        /// Obtains whether the user hat admin rights or not
+        /// Obtains whether the user hat admin rights or not.
         /// </summary>
         public bool HasAdminRights { get; private set; }
 
         /// <summary>
-        /// Checks whether the service shall shutdown (leave the worker function)
+        /// Checks whether the service shall shutdown (leave the worker function).
         /// </summary>
         public bool Shutdown { get; private set; }
 
         /// <summary>
-        /// Running in commandline mode
+        /// Running in commandline mode.
         /// </summary>
         public bool CommandLineMode { get; private set; }
 
@@ -47,7 +47,7 @@ namespace Cave.Service
         public string LogSourceName => "ServiceParameters";
 
         /// <summary>
-        /// Initiates the shutdown
+        /// Initiates the shutdown.
         /// </summary>
         public void CommitShutdown()
         {

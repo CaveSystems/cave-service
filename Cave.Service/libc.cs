@@ -5,16 +5,16 @@ using System.Security;
 namespace Cave.Service
 {
     /// <summary>
-    /// Provides access to libc library functions
+    /// Provides access to libc library functions.
     /// </summary>
     public static class libc
     {
-        /// <summary>The native library name (linux directfb.so.x, macos directfb.dylib</summary>
+        /// <summary>The native library name (linux directfb.so.x, macos directfb.dylib.</summary>
         const string NATIVE_LIBRARY = "libc";
         const CallingConvention CALLING_CONVENTION = CallingConvention.Cdecl;
 
         /// <summary>
-        /// Memory page protection flags
+        /// Memory page protection flags.
         /// </summary>
         [Flags]
         public enum PROT : uint
@@ -36,7 +36,7 @@ namespace Cave.Service
         }
 
         /// <summary>
-        /// Memory page mapping flags
+        /// Memory page mapping flags.
         /// </summary>
         [Flags]
         public enum MAP : uint
@@ -57,7 +57,7 @@ namespace Cave.Service
             /// <summary>The open function creates and returns a new file descriptor for the file named by fileName. </summary>
             /// <param name="fileName">The fileName.</param>
             /// <param name="flags">The flags argument controls how the file is to be opened. </param>
-            /// <returns>Returns a handle to the opened file</returns>
+            /// <returns>Returns a handle to the opened file.</returns>
             [DllImport(NATIVE_LIBRARY, CallingConvention = CALLING_CONVENTION, CharSet = CharSet.Auto, BestFitMapping = false, ThrowOnUnmappableChar = true)]
             public static extern int open(string fileName, int flags);
 
@@ -75,7 +75,7 @@ namespace Cave.Service
             [DllImport(NATIVE_LIBRARY, CallingConvention = CALLING_CONVENTION)]
             public static extern int ioctl(int handle, int cmd, IntPtr data);
 
-            /// <summary>map files or devices into memory</summary>
+            /// <summary>map files or devices into memory.</summary>
             /// <param name="address">The address.</param>
             /// <param name="length">The length.</param>
             /// <param name="prot">The protection flags.</param>
@@ -90,7 +90,7 @@ namespace Cave.Service
             /// <param name="dest">The destination.</param>
             /// <param name="src">The source.</param>
             /// <param name="num">The number.</param>
-            /// <returns>Returns the given destination pointer</returns>
+            /// <returns>Returns the given destination pointer.</returns>
             [DllImport(NATIVE_LIBRARY, CallingConvention = CALLING_CONVENTION)]
             public static extern IntPtr memcpy(IntPtr dest, IntPtr src, int num);
 
@@ -99,16 +99,16 @@ namespace Cave.Service
             /// </summary>
             /// <param name="process">Ident is an arbitrary identification string which future syslog invocations will prefix to each message. This is intended to identify the source of the message, and people conventionally set it to the name of the program that will submit the messages. 
             /// Please note that the string pointer ident will be retained internally by the Syslog routines. You must not free the memory that ident points to. It is also dangerous to pass a reference to an automatic variable since leaving the scope would mean ending the lifetime of the variable. If you want to change the ident string, you must call openlog again; overwriting the string pointed to by ident is not thread-safe. </param>
-            /// <param name="option">SyslogOption</param>
-            /// <param name="facility">SyslogFacility</param>
+            /// <param name="option">SyslogOption.</param>
+            /// <param name="facility">SyslogFacility.</param>
             [DllImport(NATIVE_LIBRARY, CallingConvention = CALLING_CONVENTION)]
             public static extern void openlog(IntPtr process, IntPtr option, IntPtr facility);
 
             /// <summary>
             /// submits a message to the Syslog facility. It does this by writing to the Unix domain socket /dev/log. 
             /// </summary>
-            /// <param name="priority">SyslogPriority</param>
-            /// <param name="msg">Message to submit</param>
+            /// <param name="priority">SyslogPriority.</param>
+            /// <param name="msg">Message to submit.</param>
             [DllImport(NATIVE_LIBRARY, CallingConvention = CALLING_CONVENTION, CharSet = CharSet.Auto, BestFitMapping = false, ThrowOnUnmappableChar = true)]
             public static extern void syslog(int priority, string msg);
 
