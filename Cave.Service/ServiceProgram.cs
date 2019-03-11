@@ -14,7 +14,7 @@ using Cave.IO;
 using Cave.Logging;
 
 #if NET35 || NET20
-#elif NET40 || NET45 || NET46 || NET471
+#elif NET40 || NET45 || NET46 || NET47
 using System.Runtime.ExceptionServices;
 #else
 #error No code defined for the current framework or NETXX version define missing!
