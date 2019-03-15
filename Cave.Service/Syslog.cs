@@ -10,11 +10,11 @@ namespace Cave.Service
     /// </summary>
     public static class Syslog
     {
-        static IntPtr m_ProcessNamePtr;
-        static object m_SyncRoot = new object();
+        static IntPtr processNamePtr;
+        static object syncRoot = new object();
 
         /// <summary>
-        /// Opens logging to the logging deamon.
+        /// Starts logging to the logging deamon.
         /// </summary>
         public static void Init()
         {
@@ -22,28 +22,33 @@ namespace Cave.Service
         }
 
         /// <summary>
-        /// Opens logging to the logging deamon.
+        /// Starts logging to the logging deamon.
         /// </summary>
+        /// <param name="option">The syslog option.</param>
+        /// <param name="facility">The syslog facility.</param>
         public static void Init(SyslogOption option, SyslogFacility facility)
         {
-            if (m_ProcessNamePtr != IntPtr.Zero)
+            if (processNamePtr != IntPtr.Zero)
             {
                 return;
             }
 
             string l_ProcessName = Process.GetCurrentProcess().ProcessName;
-            m_ProcessNamePtr = Marshal.StringToHGlobalAnsi(l_ProcessName);
-            libc.SafeNativeMethods.openlog(m_ProcessNamePtr, new IntPtr((int)option), new IntPtr((int)facility));
+            processNamePtr = Marshal.StringToHGlobalAnsi(l_ProcessName);
+            libc.SafeNativeMethods.openlog(processNamePtr, new IntPtr((int)option), new IntPtr((int)facility));
         }
 
         /// <summary>
         /// Logs a message.
         /// </summary>
+        /// <param name="severity">The syslog severity.</param>
+        /// <param name="facility">The syslog facility.</param>
+        /// <param name="msg">The message tring to log.</param>
         public static void Write(SyslogSeverity severity, SyslogFacility facility, string msg)
         {
-            lock (m_SyncRoot)
+            lock (syncRoot)
             {
-                if (m_ProcessNamePtr == IntPtr.Zero)
+                if (processNamePtr == IntPtr.Zero)
                 {
                     return;
                 }
@@ -58,17 +63,17 @@ namespace Cave.Service
         /// </summary>
         public static void Close()
         {
-            lock (m_SyncRoot)
+            lock (syncRoot)
             {
-                if (m_ProcessNamePtr != IntPtr.Zero)
+                if (processNamePtr != IntPtr.Zero)
                 {
                     libc.SafeNativeMethods.closelog();
-                    if (m_ProcessNamePtr != IntPtr.Zero)
+                    if (processNamePtr != IntPtr.Zero)
                     {
-                        Marshal.FreeHGlobal(m_ProcessNamePtr);
+                        Marshal.FreeHGlobal(processNamePtr);
                     }
 
-                    m_ProcessNamePtr = IntPtr.Zero;
+                    processNamePtr = IntPtr.Zero;
                 }
             }
         }

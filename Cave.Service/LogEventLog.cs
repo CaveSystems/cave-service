@@ -16,14 +16,14 @@ namespace Cave.Service
     /// </summary>
     public sealed class LogEventLog : LogReceiver, IDisposable
     {
-        EventLog m_EventLog = null;
-        LogLevel m_LogLevel = LogLevel.Information;
-
         /// <summary>Retrieves the process name of the process generating the messages (defaults to the program name).</summary>
         public readonly string ProcessName;
 
         /// <summary>Retrieves the target event log name.</summary>
         public readonly string LogName;
+
+        EventLog eventLog = null;
+        LogLevel logLevel = LogLevel.Information;
 
         void Init()
         {
@@ -42,11 +42,12 @@ namespace Cave.Service
             {
                 throw new SecurityException(string.Format("The event source {0} does not exist and the current user has no right to create it!", ProcessName), ex);
             }
-            m_EventLog = new EventLog(LogName, ".", ProcessName);
+            eventLog = new EventLog(LogName, ".", ProcessName);
         }
 
         /// <summary>
-        /// Creates a new instance of <see cref="LogEventLog"/> with the default process name and at the default log: "Application:ProcessName".
+        /// Initializes a new instance of the <see cref="LogEventLog"/> class,
+        /// with the default process name and at the default log: "Application:ProcessName".
         /// </summary>
         public LogEventLog()
         {
@@ -61,9 +62,9 @@ namespace Cave.Service
         }
 
         /// <summary>
-        /// Creates a new instance using a specified EventLog object.
+        /// Initializes a new instance of the <see cref="LogEventLog"/> class.
         /// </summary>
-        /// <param name="eventLog"></param>
+        /// <param name="eventLog">The event log.</param>
         public LogEventLog(EventLog eventLog)
         {
             if (eventLog == null)
@@ -71,14 +72,16 @@ namespace Cave.Service
                 throw new ArgumentNullException("eventLog");
             }
 
-            m_EventLog = eventLog;
+            this.eventLog = eventLog;
             ProcessName = Process.GetCurrentProcess().ProcessName;
-            LogName = m_EventLog.Log;
+            LogName = this.eventLog.Log;
         }
 
         /// <summary>
-        /// Creates a new instance of <see cref="LogEventLog"/>.
+        /// Initializes a new instance of the <see cref="LogEventLog"/> class.
         /// </summary>
+        /// <param name="eventLog">The event log.</param>
+        /// <param name="processName">The process name.</param>
         public LogEventLog(EventLog eventLog, string processName)
         {
             if (eventLog == null)
@@ -86,26 +89,26 @@ namespace Cave.Service
                 throw new ArgumentNullException("eventLog");
             }
 
-            m_EventLog = eventLog;
-            LogName = m_EventLog.Log;
+            this.eventLog = eventLog;
+            LogName = this.eventLog.Log;
             ProcessName = processName;
         }
 
         #region ILogReceiver Member
 
-        EventLogEntryType m_CurrentType = EventLogEntryType.Information;
-        readonly StringBuilder m_CurrentMessage = new StringBuilder();
-        DateTime m_LastMessage;
-        Task m_FlushTask;
+        readonly StringBuilder currentMessage = new StringBuilder();
+        EventLogEntryType currentType = EventLogEntryType.Information;
+        DateTime lastMessage;
+        Task flushTask;
 
         void Flush()
         {
-            lock (m_CurrentMessage)
+            lock (currentMessage)
             {
-                if (m_CurrentMessage.Length > 0)
+                if (currentMessage.Length > 0)
                 {
-                    m_EventLog.WriteEntry(m_CurrentMessage.ToString(), m_CurrentType);
-                    m_CurrentMessage.Length = 0;
+                    eventLog.WriteEntry(currentMessage.ToString(), currentType);
+                    currentMessage.Length = 0;
                 }
             }
         }
@@ -117,12 +120,12 @@ namespace Cave.Service
         /// <param name="content">The content.</param>
         protected override void Write(DateTime dateTime, LogLevel level, string source, XT content)
         {
-            if (m_EventLog == null)
+            if (eventLog == null)
             {
                 return;
             }
 
-            if (level > m_LogLevel)
+            if (level > logLevel)
             {
                 return;
             }
@@ -138,25 +141,25 @@ namespace Cave.Service
                 type = EventLogEntryType.Error;
             }
 
-            lock (m_CurrentMessage)
+            lock (currentMessage)
             {
-                if (type != m_CurrentType || m_CurrentMessage.Length > 16384)
+                if (type != currentType || currentMessage.Length > 16384)
                 {
                     Flush();
                 }
-                m_LastMessage = dateTime;
-                m_CurrentType = type;
-                m_CurrentMessage.Append(dateTime.ToLocalTime().ToString());
-                m_CurrentMessage.Append(" Source: ");
-                m_CurrentMessage.Append(source);
-                m_CurrentMessage.Append(" Message: ");
-                m_CurrentMessage.Append(content.Text.Trim('\r', '\n'));
-                m_CurrentMessage.AppendLine();
+                lastMessage = dateTime;
+                currentType = type;
+                currentMessage.Append(dateTime.ToLocalTime().ToString());
+                currentMessage.Append(" Source: ");
+                currentMessage.Append(source);
+                currentMessage.Append(" Message: ");
+                currentMessage.Append(content.Text.Trim('\r', '\n'));
+                currentMessage.AppendLine();
             }
 
-            if (m_FlushTask == null)
+            if (flushTask == null)
             {
-                m_FlushTask = Task.Factory.StartNew(delegate
+                flushTask = Task.Factory.StartNew(() =>
                 {
                     if (!Monitor.TryEnter(this))
                     {
@@ -164,7 +167,7 @@ namespace Cave.Service
                     }
 
                     Thread.Sleep(1000);
-                    m_FlushTask = null;
+                    flushTask = null;
                     Flush();
                     Monitor.Exit(this);
                 });
@@ -181,28 +184,28 @@ namespace Cave.Service
         #endregion
 
         /// <summary>
-        /// Returns the name of the event log.
+        /// Gets the name of the event log.
         /// </summary>
-        public string Name => m_EventLog.LogDisplayName;
+        public string Name => eventLog.LogDisplayName;
 
         /// <summary>
-        /// LogEventLog.
+        /// Gets the string "LogEventLog".
         /// </summary>
         public override string LogSourceName => "LogEventLog";
 
         #region IDisposable Support
+
         /// <summary>Releases the unmanaged resources used by this instance and optionally releases the managed resources.</summary>
         /// <param name="disposing">true to release both managed and unmanaged resources; false to release only unmanaged resources.</param>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2213:DisposableFieldsShouldBeDisposed", MessageId = "m_EventLog")]
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
             if (disposing)
             {
-                if (m_EventLog != null)
+                if (eventLog != null)
                 {
-                    m_EventLog?.Close();
-                    m_EventLog = null;
+                    eventLog?.Close();
+                    eventLog = null;
                 }
             }
         }

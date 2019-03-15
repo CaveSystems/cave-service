@@ -44,7 +44,7 @@ namespace Cave.Service
         /// </value>
         public bool HasAdminRights { get; private set; }
 
-        /// <summary>Gets the log file used. This may be null.</summary>
+        /// <summary>Gets or sets the log file used. This may be null.</summary>
         /// <value>The log file or null.</value>
         public LogFile LogFile { get; protected set; }
 
@@ -61,6 +61,7 @@ namespace Cave.Service
         public ServiceParameters ServiceParameters { get; private set; }
 
         #region abstract worker definition
+
         /// <summary>
         /// Worker function to be implemented by the real program.
         /// </summary>
@@ -73,7 +74,7 @@ namespace Cave.Service
 
         #region private implementation
 
-        Task m_Task;
+        Task task;
 
         #region application domain unhandled error logging
         void UnhandledException(object sender, UnhandledExceptionEventArgs e)
@@ -97,7 +98,7 @@ namespace Cave.Service
         #endregion
 
         /// <summary>Runs the worker. Used by Service and CommandLine.</summary>
-        /// <exception cref="System.InvalidOperationException"></exception>
+        /// <exception cref="System.InvalidOperationException">Throws if another instance is alreaqdy running.</exception>
         void RunWorker()
         {
             this.LogDebug("Enter Service Mutex");
@@ -121,12 +122,16 @@ namespace Cave.Service
                     GC.KeepAlive(mutex);
                 }
             }
-            catch (Exception ex) { this.LogEmergency(ex, "<red>Error: <default>A fatal unhandled exception was encountered at the main service worker. See logging for details."); }
+            catch (Exception ex)
+            {
+                this.LogEmergency(ex, "<red>Error: <default>A fatal unhandled exception was encountered at the main service worker. See logging for details.");
+            }
             this.LogDebug("Exit Service Mutex");
             Logger.Flush();
         }
 
         #region command line functions
+
         /// <summary>Shows the help for this instance in commandline mode.</summary>
         protected virtual void Help()
         {
@@ -176,7 +181,7 @@ namespace Cave.Service
                     ProcessStartInfo processStartInfo = new ProcessStartInfo(CommandlineArguments.Command, CommandlineArguments.ToString(false) + " --wait")
                     {
                         UseShellExecute = true,
-                        Verb = "runas"
+                        Verb = "runas",
                     };
                     Process.Start(processStartInfo);
                     return;
@@ -275,7 +280,7 @@ namespace Cave.Service
             }
             if (runCommandLine)
             {
-                //--- start service as program
+                // --- start service as program
                 ServiceParameters = new ServiceParameters(HasAdminRights, true, isInteractive);
                 try
                 {
@@ -285,7 +290,8 @@ namespace Cave.Service
                 {
                     this.LogError("Error while running service executable in commandline mode.\n" + ex.ToXT());
                 }
-                //--- exit
+
+                // --- exit
             }
             Logger.Flush();
             if (isInteractive && wait)
@@ -299,7 +305,6 @@ namespace Cave.Service
                 SystemConsole.WriteLine("--- Press <yellow>enter<default> to exit... ---");
                 while (SystemConsole.ReadKey().Key != ConsoleKey.Enter)
                 {
-                    ;
                 }
             }
         }
@@ -308,10 +313,11 @@ namespace Cave.Service
         #endregion
 
         #region protected overrides
+
         /// <summary>
         /// Handles the service start event creating a background thread calling the <see cref="RunWorker"/> function.
         /// </summary>
-        /// <param name="args"></param>
+        /// <param name="args">The arguments.</param>
         protected override void OnStart(string[] args)
         {
             if (ServiceParameters != null)
@@ -322,7 +328,7 @@ namespace Cave.Service
             this.LogInfo("Starting service <cyan>{0}<default>...", ServiceName);
             base.OnStart(args);
             ServiceParameters = new ServiceParameters(HasAdminRights, false, false);
-            m_Task = Task.Factory.StartNew(delegate
+            task = Task.Factory.StartNew(() =>
             {
                 RunWorker();
                 base.OnStop();
@@ -348,10 +354,10 @@ namespace Cave.Service
             }
 
             ServiceParameters.CommitShutdown();
-            if (m_Task != null)
+            if (task != null)
             {
-                m_Task.Wait();
-                m_Task = null;
+                task.Wait();
+                task = null;
             }
             ServiceParameters = null;
             this.LogInfo("Service <cyan>{0}<default> stopped.", ServiceName);
@@ -359,8 +365,8 @@ namespace Cave.Service
         #endregion
 
         /// <summary>Initializes a new instance of the <see cref="ServiceProgram"/> class.</summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public ServiceProgram() : base()
+        public ServiceProgram()
+            : base()
         {
             this.LogInfo("Initializing Service instance.");
             AppDomain.CurrentDomain.UnhandledException += UnhandledException;
@@ -383,10 +389,10 @@ namespace Cave.Service
                 HasAdminRights = new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);
             }
 
-            IsWindowsService = (Platform.IsMicrosoft && !Environment.UserInteractive);
+            IsWindowsService = Platform.IsMicrosoft && !Environment.UserInteractive;
             if (IsWindowsService)
             {
-                //no log console + service run
+                // no log console + service run
                 if (!HasAdminRights)
                 {
                     throw new NotSupportedException("Service requires administration rights!");
@@ -397,10 +403,11 @@ namespace Cave.Service
             else
             {
                 CommandlineArguments = Arguments.FromEnvironment();
-                //commandline run or linux daemon ?
+
+                // commandline run or linux daemon ?
                 if (!CommandlineArguments.IsOptionPresent("daemon"))
                 {
-                    //no daemon -> log console
+                    // no daemon -> log console
                     LogConsole = LogConsole.Create();
                     LogConsole.Title = ServiceName + " v" + VersionInfo.InformalVersion;
                     if (CommandlineArguments.IsOptionPresent("debug"))
@@ -419,7 +426,7 @@ namespace Cave.Service
                     }
                 }
 
-                //on unix do syslog
+                // on unix do syslog
                 LogSystem = LogConsole;
                 if (Platform.Type == PlatformType.Linux)
                 {
@@ -434,9 +441,10 @@ namespace Cave.Service
         }
 
         #region public Run() function
+
         /// <summary>
         /// Starts the service as service process or user interactive commandline program.
-        /// In user interactive mode a logconsole is created to receive messages. 
+        /// In user interactive mode a logconsole is created to receive messages.
         /// In service mode an eventlog is used.
         /// </summary>
         public void Run()
@@ -455,7 +463,7 @@ namespace Cave.Service
                     SystemConsole.SetKeyPressedEvent(OnKeyPressed);
                 }
 
-                //run commandline
+                // run commandline
                 CommandLineRun();
             }
             catch (Exception ex)
@@ -464,7 +472,7 @@ namespace Cave.Service
             }
             finally
             {
-                //force stop if not already stopped / set stopped flag at service
+                // force stop if not already stopped / set stopped flag at service
                 if (IsWindowsService)
                 {
                     Stop();
@@ -484,13 +492,14 @@ namespace Cave.Service
         #endregion
 
         #region public properties
+
         /// <summary>
-        /// Obtains the <see cref="AssemblyVersionInfo"/> of the service.
+        /// Gets the <see cref="AssemblyVersionInfo"/> of the service.
         /// </summary>
         public AssemblyVersionInfo VersionInfo { get; private set; }
 
         /// <summary>
-        /// Returns the string "Service &lt;Name&gt;".
+        /// Gets the string "Service" + product version info.
         /// </summary>
         public virtual string LogSourceName => "Service " + VersionInfo.Product;
         #endregion

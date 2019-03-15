@@ -5,7 +5,6 @@ namespace Cave.Service
     /// <summary>
     /// Options needed for the *nix logging deamons.
     /// </summary>
-
     [Flags]
     public enum SyslogOption
     {
@@ -38,6 +37,6 @@ namespace Cave.Service
         /// <summary>
         /// Logs to stderr as well
         /// </summary>
-        PrintError = 0x20
+        PrintError = 0x20,
     }
 }

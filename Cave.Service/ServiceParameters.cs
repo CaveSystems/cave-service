@@ -9,11 +9,11 @@ namespace Cave.Service
     public sealed class ServiceParameters : ILogSource
     {
         /// <summary>
-        /// Creates new service parameters.
+        /// Initializes a new instance of the <see cref="ServiceParameters"/> class.
         /// </summary>
-        /// <param name="hasAdminRights"></param>
-        /// <param name="cmdLineMode"></param>
-        /// <param name="userInteractive"></param>
+        /// <param name="hasAdminRights">User has admin rights.</param>
+        /// <param name="cmdLineMode">Service runs in command line mode.</param>
+        /// <param name="userInteractive">Service runs in interactive shell.</param>
         internal ServiceParameters(bool hasAdminRights, bool cmdLineMode, bool userInteractive)
         {
             HasAdminRights = hasAdminRights;
@@ -28,17 +28,17 @@ namespace Cave.Service
         public bool UserInteractive { get; private set; }
 
         /// <summary>
-        /// Obtains whether the user hat admin rights or not.
+        /// Gets a value indicating whether the user hat admin rights or not.
         /// </summary>
         public bool HasAdminRights { get; private set; }
 
         /// <summary>
-        /// Checks whether the service shall shutdown (leave the worker function).
+        /// Gets a value indicating whether the service shall shutdown (leave the worker function).
         /// </summary>
         public bool Shutdown { get; private set; }
 
         /// <summary>
-        /// Running in commandline mode.
+        /// Gets a value indicating whether running in commandline mode.
         /// </summary>
         public bool CommandLineMode { get; private set; }
 
@@ -60,6 +60,7 @@ namespace Cave.Service
         }
 
         /// <summary>Waits for shutdown.</summary>
+        /// <param name="millisecondsTimeout">the timeout in millicesonds.</param>
         public void WaitForShutdown(int millisecondsTimeout = -1)
         {
             while (!Shutdown)

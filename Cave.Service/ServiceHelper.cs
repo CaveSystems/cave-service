@@ -21,7 +21,7 @@ namespace Cave.Service
         }
 
         /// <summary>
-        /// Checks whether the server service is installed or not.
+        /// Gets a value indicating whether the server service is installed or not.
         /// </summary>
         public static bool IsInstalled
         {
@@ -43,7 +43,7 @@ namespace Cave.Service
         }
 
         /// <summary>
-        /// Checks whether the server service is running or not.
+        /// Gets a value indicating whether the server service is running or not.
         /// </summary>
         public static bool IsRunning
         {
@@ -67,7 +67,7 @@ namespace Cave.Service
         /// <summary>
         /// Stops the server service.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>True if the service could be stopped without errors.</returns>
         public static bool StopService()
         {
             Logger.LogInfo("ServiceHelper", string.Format("Stopping service..."));
@@ -81,7 +81,7 @@ namespace Cave.Service
 
                 controller.Stop();
                 controller.WaitForStatus(ServiceControllerStatus.Stopped, TimeSpan.FromSeconds(10));
-                bool result = (controller.Status == ServiceControllerStatus.Stopped);
+                bool result = controller.Status == ServiceControllerStatus.Stopped;
                 controller.Dispose();
                 if (result)
                 {
@@ -103,7 +103,7 @@ namespace Cave.Service
         /// <summary>
         /// Starts the server service.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>True if the service could be started without errors.</returns>
         public static bool StartService()
         {
             Logger.LogInfo("ServiceHelper", string.Format("Starting service..."));
@@ -117,7 +117,7 @@ namespace Cave.Service
 
                 controller.Start();
                 controller.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromSeconds(10));
-                bool result = (controller.Status == ServiceControllerStatus.Running);
+                bool result = controller.Status == ServiceControllerStatus.Running;
                 controller.Dispose();
                 if (result)
                 {
@@ -139,7 +139,7 @@ namespace Cave.Service
         /// <summary>
         /// Installs the server service.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>True if the service could be installed without errors.</returns>
         public static bool InstallService()
         {
             Logger.LogInfo("ServiceHelper", "Installing service...");
@@ -156,8 +156,13 @@ namespace Cave.Service
                 }
                 catch (Exception ex)
                 {
-                    try { installer.Rollback(l_State); }
-                    catch { }
+                    try
+                    {
+                        installer.Rollback(l_State);
+                    }
+                    catch
+                    {
+                    }
                     Logger.LogError("ServiceHelper", ex, "Error while installing service:\n" + ex.ToXT());
                     return false;
                 }
@@ -167,7 +172,7 @@ namespace Cave.Service
         /// <summary>
         /// Uninstalls the server service.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>True if the service could be uninstalled without errors.</returns>
         public static bool UnInstallService()
         {
             if (IsRunning)
@@ -188,8 +193,13 @@ namespace Cave.Service
                 }
                 catch (Exception ex)
                 {
-                    try { installer.Rollback(state); }
-                    catch { }
+                    try
+                    {
+                        installer.Rollback(state);
+                    }
+                    catch
+                    {
+                    }
                     Logger.LogError("ServiceHelper", ex, "Error while uninstalling service:\n" + ex.ToXT());
                     return false;
                 }
