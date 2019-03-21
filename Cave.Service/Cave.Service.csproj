@@ -63,6 +63,12 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="stylecop.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <AdditionalFiles Include="stylecop.json" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Cave.Console" Version="1.0.1" />
     <PackageReference Include="Cave.Extensions" Version="1.0.6" />
     <PackageReference Include="Cave.IO" Version="1.0.5" />

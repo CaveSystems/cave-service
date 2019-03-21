@@ -9,15 +9,15 @@ namespace Cave.Service
     /// </summary>
     public sealed class LogSyslog : LogReceiver
     {
-        static object SyncRoot = new object();
+        static object syncRoot = new object();
         static LogSyslog instance;
 
         /// <summary>Creates a new instance.</summary>
-        /// <returns></returns>
+        /// <returns>The new syslog instance.</returns>
         /// <exception cref="Exception">Only one instance allowed!.</exception>
         public static LogSyslog Create()
         {
-            lock (SyncRoot)
+            lock (syncRoot)
             {
                 if (instance == null)
                 {
@@ -41,7 +41,7 @@ namespace Cave.Service
         public override void Close()
         {
             base.Close();
-            lock (SyncRoot)
+            lock (syncRoot)
             {
                 Syslog.Close();
                 instance = null;
@@ -49,7 +49,7 @@ namespace Cave.Service
         }
 
         /// <summary>
-        /// facility to use.
+        /// Gets or sets facility to use.
         /// </summary>
         public SyslogFacility Facility { get; set; }
 
@@ -65,7 +65,7 @@ namespace Cave.Service
         }
 
         /// <summary>
-        /// Obtains the name 'LogSyslog'.
+        /// Gets the name 'LogSyslog'.
         /// </summary>
         public override string LogSourceName => "LogSyslog";
     }

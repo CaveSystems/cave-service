@@ -1,6 +1,7 @@
-//ignore missing comments on this file
-//TODO complete and add missing comments
+// ignore missing comments on this file
+// TODO complete and add missing comments
 #pragma warning disable 1591
+#pragma warning disable SA1602 // Enumeration items should be documented
 
 using System;
 
@@ -37,12 +38,12 @@ namespace Cave.Service
         OPEN_MAX,
 
         /// <summary>
-        /// indicates the maximum number of streams that a process can have open simultaneously. 
+        /// indicates the maximum number of streams that a process can have open simultaneously.
         /// </summary>
         STREAM_MAX,
 
         /// <summary>
-        /// indicates the maximum length of the name of a time zone. 
+        /// indicates the maximum length of the name of a time zone.
         /// </summary>
         TZNAME_MAX,
 
@@ -217,7 +218,7 @@ namespace Cave.Service
         COLL_WEIGHTS_MAX,
 
         /// <summary>
-        /// Inquire about the maximum number of weights that can be assigned to an entry of the LC_COLLATE category `order' keyword in a locale definition. The GNU C library does not presently support locale definitions. 
+        /// Inquire about the maximum number of weights that can be assigned to an entry of the LC_COLLATE category `order' keyword in a locale definition. The GNU C library does not presently support locale definitions.
         /// </summary>
         EQUIV_CLASS_MAX,
 
@@ -237,7 +238,7 @@ namespace Cave.Service
         RE_DUP_MAX,
 
         /// <summary>
-        /// Inquire about the parameter corresponding to maximal length allowed for a character class name in an extended locale specification. These extensions are not yet standardized and so this option is not standardized as well. 
+        /// Inquire about the parameter corresponding to maximal length allowed for a character class name in an extended locale specification. These extensions are not yet standardized and so this option is not standardized as well.
         /// </summary>
         CHARCLASS_NAME_MAX,
 
@@ -277,73 +278,77 @@ namespace Cave.Service
         POSIX2_LOCALEDEF,
 
         /// <summary>
-        /// Inquire about the parameter corresponding to _POSIX_PII. 
+        /// Inquire about Protocol-independent interfaces are supported.
         /// </summary>
         PII,
 
         /// <summary>
-        /// Inquire about the parameter corresponding to _POSIX_PII_XTI. 
+        /// Inquire about XTI protocol-indep. interfaces are supported.
         /// </summary>
         PII_XTI,
 
         /// <summary>
-        /// Inquire about the parameter corresponding to _POSIX_PII_SOCKET. 
+        /// Inquire about Socket protocol-indep. interfaces are supported.
         /// </summary>
         PII_SOCKET,
 
         /// <summary>
-        /// Inquire about the parameter corresponding to _POSIX_PII_INTERNET. 
+        /// Inquire about Internet family of protocols supported.
         /// </summary>
         PII_INTERNET,
 
         /// <summary>
-        /// Inquire about the parameter corresponding to _POSIX_PII_OSI. 
+        /// Inquire about ISO/OSI family of protocols supported.
         /// </summary>
         PII_OSI,
+
+        /// <summary>
+        /// Inquire about the implementation supports `poll' function.
+        /// </summary>
         POLL,
 
         /// <summary>
-        /// Inquire about the parameter corresponding to _POSIX_SELECT. 
+        /// Inquire about the implementation supports `select' and `pselect'.
         /// </summary>
         SELECT,
 
         /// <summary>
-        /// Inquire about the parameter corresponding to _POSIX_UIO_MAXIOV. 
+        /// Inquire about the parameter corresponding to _POSIX_UIO_MAXIOV.
         /// </summary>
         UIO_MAXIOV,
 
         /// <summary>
-        /// Inquire the value of the value associated with the IOV_MAX variable. 
+        /// Inquire the value of the value associated with the IOV_MAX variable.
         /// </summary>
         IOV_MAX = UIO_MAXIOV,
 
         /// <summary>
-        /// Inquire about the parameter corresponding to _POSIX_PII_INTERNET_STREAM. 
+        /// Inquire about Connection-mode Internet protocol is supported.
         /// </summary>
         PII_INTERNET_STREAM,
 
         /// <summary>
-        /// Inquire about the parameter corresponding to _POSIX_PII_INTERNET_DGRAM. 
+        /// Inquire about Connectionless Internet protocol is supported.
         /// </summary>
         PII_INTERNET_DGRAM,
 
         /// <summary>
-        /// Inquire about the parameter corresponding to _POSIX_PII_OSI_COTS. 
+        /// Inquire about Connection-mode ISO/OSI service is supported.
         /// </summary>
         PII_OSI_COTS,
 
         /// <summary>
-        /// Inquire about the parameter corresponding to _POSIX_PII_OSI_CLTS. 
+        /// Inquire about the Connectionless ISO/OSI service is supported.
         /// </summary>
         PII_OSI_CLTS,
 
         /// <summary>
-        /// Inquire about the parameter corresponding to _POSIX_PII_OSI_M. 
+        /// Inquire about the parameter corresponding to _POSIX_PII_OSI_M.
         /// </summary>
         PII_OSI_M,
 
         /// <summary>
-        /// Inquire the value of the value associated with the T_IOV_MAX variable. 
+        /// Inquire the value of the value associated with the T_IOV_MAX variable.
         /// </summary>
         T_IOV_MAX,
 
@@ -353,7 +358,7 @@ namespace Cave.Service
         THREADS,
 
         /// <summary>
-        /// Inquire about the parameter corresponding to POSIX_THREAD_SAFE_FUNCTIONS. 
+        /// Inquire about the parameter corresponding to POSIX_THREAD_SAFE_FUNCTIONS.
         /// </summary>
         THREAD_SAFE_FUNCTIONS,
 
@@ -378,7 +383,7 @@ namespace Cave.Service
         TTY_NAME_MAX,
 
         /// <summary>
-        /// Inquire about the parameter corresponding to _POSIX_THREAD_DESTRUCTOR_ITERATIONS. 
+        /// Inquire about the parameter corresponding to _POSIX_THREAD_DESTRUCTOR_ITERATIONS.
         /// </summary>
         THREAD_DESTRUCTOR_ITERATIONS,
 
@@ -398,32 +403,32 @@ namespace Cave.Service
         THREAD_THREADS_MAX,
 
         /// <summary>
-        /// Inquire about the parameter corresponding to a _POSIX_THREAD_ATTR_STACKADDR. 
+        /// Inquire about the parameter corresponding to a _POSIX_THREAD_ATTR_STACKADDR.
         /// </summary>
         THREAD_ATTR_STACKADDR,
 
         /// <summary>
-        /// Inquire about the parameter corresponding to _POSIX_THREAD_ATTR_STACKSIZE. 
+        /// Inquire about the parameter corresponding to _POSIX_THREAD_ATTR_STACKSIZE.
         /// </summary>
         THREAD_ATTR_STACKSIZE,
 
         /// <summary>
-        /// Inquire about the parameter corresponding to _POSIX_THREAD_PRIORITY_SCHEDULING. 
+        /// Inquire about the parameter corresponding to _POSIX_THREAD_PRIORITY_SCHEDULING.
         /// </summary>
         THREAD_PRIORITY_SCHEDULING,
 
         /// <summary>
-        /// Inquire about the parameter corresponding to _POSIX_THREAD_PRIO_INHERIT. 
+        /// Inquire about the parameter corresponding to _POSIX_THREAD_PRIO_INHERIT.
         /// </summary>
         THREAD_PRIO_INHERIT,
 
         /// <summary>
-        /// Inquire about the parameter corresponding to _POSIX_THREAD_PRIO_PROTECT. 
+        /// Inquire about the parameter corresponding to _POSIX_THREAD_PRIO_PROTECT.
         /// </summary>
         THREAD_PRIO_PROTECT,
 
         /// <summary>
-        /// Inquire about the parameter corresponding to _POSIX_THREAD_PROCESS_SHARED. 
+        /// Inquire about the parameter corresponding to _POSIX_THREAD_PROCESS_SHARED.
         /// </summary>
         THREAD_PROCESS_SHARED,
 
@@ -503,137 +508,137 @@ namespace Cave.Service
         POSIX2_UPE,
 
         /// <summary>
-        /// Inquire about the parameter corresponding to _XOPEN_XPG2. 
+        /// Inquire about the parameter corresponding to _XOPEN_XPG2.
         /// </summary>
         XOPEN_XPG2,
 
         /// <summary>
-        /// Inquire about the parameter corresponding to _XOPEN_XPG3. 
+        /// Inquire about the parameter corresponding to _XOPEN_XPG3.
         /// </summary>
         XOPEN_XPG3,
 
         /// <summary>
-        /// Inquire about the parameter corresponding to _XOPEN_XPG4. 
+        /// Inquire about the parameter corresponding to _XOPEN_XPG4.
         /// </summary>
         XOPEN_XPG4,
 
         /// <summary>
-        /// Inquire about the number of bits in a variable of type char. 
+        /// Inquire about the number of bits in a variable of type char.
         /// </summary>
         CHAR_BIT,
 
         /// <summary>
-        /// Inquire about the maximum value which can be stored in a variable of type char. 
+        /// Inquire about the maximum value which can be stored in a variable of type char.
         /// </summary>
         CHAR_MAX,
 
         /// <summary>
-        /// Inquire about the minimum value which can be stored in a variable of type char. 
+        /// Inquire about the minimum value which can be stored in a variable of type char.
         /// </summary>
         CHAR_MIN,
 
         /// <summary>
-        /// Inquire about the maximum value which can be stored in a variable of type int. 
+        /// Inquire about the maximum value which can be stored in a variable of type int.
         /// </summary>
         INT_MAX,
 
         /// <summary>
-        /// Inquire about the minimum value which can be stored in a variable of type int. 
+        /// Inquire about the minimum value which can be stored in a variable of type int.
         /// </summary>
         INT_MIN,
 
         /// <summary>
-        /// Inquire about the number of bits in a variable of type long int. 
+        /// Inquire about the number of bits in a variable of type long int.
         /// </summary>
         LONG_BIT,
 
         /// <summary>
-        /// Inquire about the number of bits in a variable of a register word. 
+        /// Inquire about the number of bits in a variable of a register word.
         /// </summary>
         WORD_BIT,
 
         /// <summary>
-        /// Inquire the maximum length of a multi-byte representation of a wide character value. 
+        /// Inquire the maximum length of a multi-byte representation of a wide character value.
         /// </summary>
         MB_LEN_MAX,
 
         /// <summary>
-        /// Inquire about the value used to internally represent the zero priority level for the process execution. 
+        /// Inquire about the value used to internally represent the zero priority level for the process execution.
         /// </summary>
         NZERO,
 
         /// <summary>
-        /// Inquire about the maximum value which can be stored in a variable of type ssize_t. 
+        /// Inquire about the maximum value which can be stored in a variable of type ssize_t.
         /// </summary>
         SSIZE_MAX,
 
         /// <summary>
-        /// Inquire about the maximum value which can be stored in a variable of type signed char. 
+        /// Inquire about the maximum value which can be stored in a variable of type signed char.
         /// </summary>
         SCHAR_MAX,
 
         /// <summary>
-        /// Inquire about the minimum value which can be stored in a variable of type signed char. 
+        /// Inquire about the minimum value which can be stored in a variable of type signed char.
         /// </summary>
         SCHAR_MIN,
 
         /// <summary>
-        /// Inquire about the maximum value which can be stored in a variable of type short int. 
+        /// Inquire about the maximum value which can be stored in a variable of type short int.
         /// </summary>
         SHRT_MAX,
 
         /// <summary>
-        /// Inquire about the minimum value which can be stored in a variable of type short int. 
+        /// Inquire about the minimum value which can be stored in a variable of type short int.
         /// </summary>
         SHRT_MIN,
 
         /// <summary>
-        /// Inquire about the maximum value which can be stored in a variable of type unsigned char. 
+        /// Inquire about the maximum value which can be stored in a variable of type unsigned char.
         /// </summary>
         UCHAR_MAX,
 
         /// <summary>
-        /// Inquire about the maximum value which can be stored in a variable of type unsigned int. 
+        /// Inquire about the maximum value which can be stored in a variable of type unsigned int.
         /// </summary>
         UINT_MAX,
 
         /// <summary>
-        /// Inquire about the maximum value which can be stored in a variable of type unsigned long int. 
+        /// Inquire about the maximum value which can be stored in a variable of type unsigned long int.
         /// </summary>
         ULONG_MAX,
 
         /// <summary>
-        /// Inquire about the maximum value which can be stored in a variable of type unsigned short int. 
+        /// Inquire about the maximum value which can be stored in a variable of type unsigned short int.
         /// </summary>
         USHRT_MAX,
 
         /// <summary>
-        /// Inquire about the parameter corresponding to NaRGMAX. 
+        /// Inquire about the parameter corresponding to NaRGMAX.
         /// </summary>
         NaRGMAX,
 
         /// <summary>
-        /// Inquire about the parameter corresponding to NL_LANGMAX. 
+        /// Inquire about the parameter corresponding to NL_LANGMAX.
         /// </summary>
         NL_LANGMAX,
 
         /// <summary>
-        /// Inquire about the parameter corresponding to NL_MSGMAX. 
+        /// Inquire about the parameter corresponding to NL_MSGMAX.
         /// </summary>
         NL_MSGMAX,
 
         /// <summary>
-        /// Inquire about the parameter corresponding to NL_NMAX. 
+        /// Inquire about the parameter corresponding to NL_NMAX.
         /// </summary>
         NL_NMAX,
 
         /// <summary>
-        /// Inquire about the parameter corresponding to NL_SETMAX. 
+        /// Inquire about the parameter corresponding to NL_SETMAX.
         /// </summary>
         NL_SETMAX,
 
         /// <summary>
-        /// Inquire about the parameter corresponding to NtextMAX. 
+        /// Inquire about the parameter corresponding to NtextMAX.
         /// </summary>
         NtextMAX,
 
@@ -658,7 +663,7 @@ namespace Cave.Service
         XBS5_LPBIG_OFFBIG,
 
         /// <summary>
-        /// Inquire about the parameter corresponding to _XOPEN_LEGACY. 
+        /// Inquire about the parameter corresponding to _XOPEN_LEGACY.
         /// </summary>
         XOPEN_LEGACY,
 
@@ -729,8 +734,8 @@ namespace Cave.Service
         SIGNALS,
 
         /// <summary>
-        /// This option describes support for process creation in a context where it is difficult or impossible to use fork(), for example, because no MMU is present. 
-        /// If _POSIX_SPAWN is in effect, then the include file spawn.h and the following functions are present: 
+        /// This option describes support for process creation in a context where it is difficult or impossible to use fork(), for example, because no MMU is present.
+        /// If _POSIX_SPAWN is in effect, then the include file spawn.h and the following functions are present:
         /// </summary>
         SPAWN,
 
@@ -855,8 +860,9 @@ namespace Cave.Service
         LEVEL3_CACHE_LINESIZE,
         LEVEL4_CACHE_SIZE,
         LEVEL4_CACHE_ASSOC,
-        LEVEL4_CACHE_LINESIZE
+        LEVEL4_CACHE_LINESIZE,
     }
 }
 
+#pragma warning restore SA1602 // Enumeration items should be documented
 #pragma warning restore 1591
