@@ -17,6 +17,11 @@
     <!--settings-->
     <PackageReleaseNotes />
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <SignAssembly>true</SignAssembly>
+    <NeutralLanguage />
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <NeutralLanguage />
     <DelaySign>false</DelaySign>
     <DebugType>portable</DebugType>
