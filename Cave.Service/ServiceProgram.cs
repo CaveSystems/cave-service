@@ -4,13 +4,11 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
 using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
 using Cave.Collections;
 using Cave.Console;
-using Cave.IO;
 using Cave.Logging;
 
 #if NET35 || NET20
@@ -216,6 +214,7 @@ namespace Cave.Service
             bool isInteractive;
             if (Platform.IsMicrosoft)
             {
+                ServiceHelper.ServiceName = ServiceName;
                 isInteractive = Environment.UserInteractive;
                 if (CommandlineArguments.IsHelpOptionFound())
                 {
@@ -227,7 +226,7 @@ namespace Cave.Service
                     switch (option.Name)
                     {
                         case "start":
-                            if (!runCommandLine)
+                            if (Debugger.IsAttached || !runCommandLine)
                             {
                                 ServiceHelper.StartService();
                             }
@@ -238,7 +237,7 @@ namespace Cave.Service
 
                             break;
                         case "stop":
-                            if (!runCommandLine)
+                            if (Debugger.IsAttached || !runCommandLine)
                             {
                                 ServiceHelper.StopService();
                             }
@@ -249,7 +248,7 @@ namespace Cave.Service
 
                             break;
                         case "install":
-                            if (!runCommandLine)
+                            if (Debugger.IsAttached || !runCommandLine)
                             {
                                 ServiceHelper.InstallService();
                             }
@@ -260,7 +259,7 @@ namespace Cave.Service
 
                             break;
                         case "uninstall":
-                            if (!runCommandLine)
+                            if (Debugger.IsAttached || !runCommandLine)
                             {
                                 ServiceHelper.UnInstallService();
                             }
@@ -379,7 +378,6 @@ namespace Cave.Service
             }
 
             ServiceName = StringExtensions.ReplaceInvalidChars(VersionInfo.Product, ASCII.Strings.Letters + ASCII.Strings.Digits + "_", "_");
-            this.LogInfo("Service <cyan>{0}<default> initialized!", VersionInfo.Product);
         }
 
         void Init()
@@ -438,6 +436,7 @@ namespace Cave.Service
             {
                 LogSystem.ExceptionMode = LogExceptionMode.Full;
             }
+            this.LogInfo("Service <cyan>{0}<default> initialized!", ServiceName);
         }
 
         #region public Run() function
