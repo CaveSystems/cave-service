@@ -15,10 +15,13 @@ namespace Cave.Service
     /// </summary>
     public static class ServiceHelper
     {
-        static ServiceController GetController()
-        {
-            return new ServiceController(AssemblyVersionInfo.Program.Product);
-        }
+        static ServiceController Controller => new ServiceController(ServiceName);
+
+        /// <summary>
+        /// Gets or sets the name of the service the helper is working on.
+        /// This defaults to the product name.
+        /// </summary>
+        public static string ServiceName { get; set; } = AssemblyVersionInfo.Program.Product;
 
         /// <summary>
         /// Gets a value indicating whether the server service is installed or not.
@@ -29,7 +32,7 @@ namespace Cave.Service
             {
                 try
                 {
-                    ServiceController controller = GetController();
+                    ServiceController controller = Controller;
                     bool result = controller != null;
                     controller.Dispose();
                     return result;
@@ -51,7 +54,7 @@ namespace Cave.Service
             {
                 try
                 {
-                    ServiceController controller = GetController();
+                    ServiceController controller = Controller;
                     bool result = controller.Status != ServiceControllerStatus.Stopped;
                     controller.Dispose();
                     return result;
@@ -73,7 +76,7 @@ namespace Cave.Service
             Logger.LogInfo("ServiceHelper", string.Format("Stopping service..."));
             try
             {
-                ServiceController controller = GetController();
+                ServiceController controller = Controller;
                 if (controller.Status == ServiceControllerStatus.Stopped)
                 {
                     return true;
@@ -109,7 +112,7 @@ namespace Cave.Service
             Logger.LogInfo("ServiceHelper", string.Format("Starting service..."));
             try
             {
-                ServiceController controller = GetController();
+                ServiceController controller = Controller;
                 if (controller.Status == ServiceControllerStatus.Running)
                 {
                     return true;
@@ -145,12 +148,12 @@ namespace Cave.Service
             Logger.LogInfo("ServiceHelper", "Installing service...");
             using (AssemblyInstaller installer = new AssemblyInstaller(FileSystem.ProgramFileName, new string[0]))
             {
-                IDictionary l_State = new Hashtable();
+                IDictionary state = new Hashtable();
                 installer.UseNewContext = true;
                 try
                 {
-                    installer.Install(l_State);
-                    installer.Commit(l_State);
+                    installer.Install(state);
+                    installer.Commit(state);
                     Logger.LogNotice("ServiceHelper", "Service installed successfully.");
                     return true;
                 }
@@ -158,7 +161,7 @@ namespace Cave.Service
                 {
                     try
                     {
-                        installer.Rollback(l_State);
+                        installer.Rollback(state);
                     }
                     catch
                     {
