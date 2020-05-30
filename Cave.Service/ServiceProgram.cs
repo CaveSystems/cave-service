@@ -1,5 +1,3 @@
-#if !NETSTANDARD20
-
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -12,7 +10,7 @@ using Cave.Console;
 using Cave.Logging;
 
 #if NET35 || NET20
-#elif NET40 || NET45 || NET46 || NET47
+#elif NET40 || NET45 || NET46 || NET47 || NET80 || NETSTANDARD20
 using System.Runtime.ExceptionServices;
 #else
 #error No code defined for the current framework or NETXX version define missing!
@@ -65,14 +63,41 @@ namespace Cave.Service
         /// </summary>
         protected abstract void Worker();
 
+        #endregion
+
+        #region protected implementation
+
+        /// <summary>
+        /// Gets or sets the timespan within the user has to press 'escape' twice to shutdown the commandline version of the program.
+        /// </summary>
+        protected TimeSpan OnKeyPressedEscapeShutdownTimeSpan { get; set; } = TimeSpan.FromMilliseconds(500);
+
         /// <summary>Called when [key pressed].</summary>
         /// <param name="keyInfo">The key information.</param>
-        protected internal abstract void OnKeyPressed(ConsoleKeyInfo keyInfo);
+        protected internal virtual void OnKeyPressed(ConsoleKeyInfo keyInfo)
+        {
+            if (keyInfo.Key == ConsoleKey.Escape)
+            {
+                var now = DateTime.Now;
+                var time = now - onKeyPressedEscape;
+                onKeyPressedEscape = now;
+                if (time > TimeSpan.Zero && time < OnKeyPressedEscapeShutdownTimeSpan)
+                {
+                    ServiceParameters.CommitShutdown();
+                }
+                else
+                {
+                    this.LogInfo("Press escape within <cyan>{0}<default> to perform shutdown.", OnKeyPressedEscapeShutdownTimeSpan.FormatTime());
+                }
+            }
+        }
+
         #endregion
 
         #region private implementation
 
         Task task;
+        DateTime onKeyPressedEscape;
 
         #region application domain unhandled error logging
         void UnhandledException(object sender, UnhandledExceptionEventArgs e)
@@ -504,4 +529,3 @@ namespace Cave.Service
         #endregion
     }
 }
-#endif

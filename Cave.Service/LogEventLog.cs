@@ -1,5 +1,3 @@
-#if !NETSTANDARD20
-
 using System;
 using System.Diagnostics;
 using System.Security;
@@ -213,5 +211,3 @@ namespace Cave.Service
         #endregion
     }
 }
-
-#endif
