@@ -6,7 +6,7 @@ namespace Cave.Service
     /// <summary>
     /// Provides service runtime variables.
     /// </summary>
-    public sealed class ServiceParameters : ILogSource
+    public sealed class ServiceParameters
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ServiceParameters"/> class.

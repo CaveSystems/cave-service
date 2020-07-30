@@ -63,10 +63,5 @@ namespace Cave.Service
             SyslogSeverity severity = (SyslogSeverity)Math.Min((int)level, (int)SyslogSeverity.Debug);
             Syslog.Write(severity, Facility, content.Text);
         }
-
-        /// <summary>
-        /// Gets the name 'LogSyslog'.
-        /// </summary>
-        public override string LogSourceName => "LogSyslog";
     }
 }

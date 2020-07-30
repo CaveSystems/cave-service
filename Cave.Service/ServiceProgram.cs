@@ -22,7 +22,7 @@ namespace Cave.Service
     /// Provides a service definiton providing deamon commandline functionality on linux and windows service functionality on windows.
     /// </summary>
     [DesignerCategory("Code")]
-    public abstract class ServiceProgram : System.ServiceProcess.ServiceBase, ILogSource
+    public abstract class ServiceProgram : System.ServiceProcess.ServiceBase
     {
         /// <summary>Gets the commandline arguments if <see cref="ServiceParameters.CommandLineMode"/> == true.</summary>
         /// <value>The commandline arguments or <c>null</c>.</value>

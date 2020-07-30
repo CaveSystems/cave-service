@@ -65,12 +65,7 @@ namespace Cave.Service
         /// <param name="eventLog">The event log.</param>
         public LogEventLog(EventLog eventLog)
         {
-            if (eventLog == null)
-            {
-                throw new ArgumentNullException("eventLog");
-            }
-
-            this.eventLog = eventLog;
+            this.eventLog = eventLog ?? throw new ArgumentNullException("eventLog");
             ProcessName = Process.GetCurrentProcess().ProcessName;
             LogName = this.eventLog.Log;
         }
@@ -82,12 +77,7 @@ namespace Cave.Service
         /// <param name="processName">The process name.</param>
         public LogEventLog(EventLog eventLog, string processName)
         {
-            if (eventLog == null)
-            {
-                throw new ArgumentNullException("eventLog");
-            }
-
-            this.eventLog = eventLog;
+            this.eventLog = eventLog ?? throw new ArgumentNullException("eventLog");
             LogName = this.eventLog.Log;
             ProcessName = processName;
         }
@@ -96,7 +86,6 @@ namespace Cave.Service
 
         readonly StringBuilder currentMessage = new StringBuilder();
         EventLogEntryType currentType = EventLogEntryType.Information;
-        DateTime lastMessage;
         Task flushTask;
 
         void Flush()
@@ -145,7 +134,6 @@ namespace Cave.Service
                 {
                     Flush();
                 }
-                lastMessage = dateTime;
                 currentType = type;
                 currentMessage.Append(dateTime.ToLocalTime().ToString());
                 currentMessage.Append(" Source: ");
@@ -185,11 +173,6 @@ namespace Cave.Service
         /// Gets the name of the event log.
         /// </summary>
         public string Name => eventLog.LogDisplayName;
-
-        /// <summary>
-        /// Gets the string "LogEventLog".
-        /// </summary>
-        public override string LogSourceName => "LogEventLog";
 
         #region IDisposable Support
 
