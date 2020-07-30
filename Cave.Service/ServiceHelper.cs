@@ -146,7 +146,7 @@ namespace Cave.Service
         public static bool InstallService()
         {
             Logger.LogInfo("ServiceHelper", "Installing service...");
-            using (AssemblyInstaller installer = new AssemblyInstaller(FileSystem.ProgramFileName, new string[0]))
+            using (var installer = new AssemblyInstaller(FileSystem.ProgramFileName, new string[0]))
             {
                 IDictionary state = new Hashtable();
                 installer.UseNewContext = true;
@@ -184,7 +184,7 @@ namespace Cave.Service
             }
 
             Logger.LogInfo("ServiceHelper", "Uninstalling service...");
-            using (AssemblyInstaller installer = new AssemblyInstaller(FileSystem.ProgramFileName, new string[0]))
+            using (var installer = new AssemblyInstaller(FileSystem.ProgramFileName, new string[0]))
             {
                 IDictionary state = new Hashtable();
                 installer.UseNewContext = true;

@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Cave.Collections;
 using Cave.Console;
+using Cave.IO;
 using Cave.Logging;
 
 #if NET35 || NET20
@@ -24,6 +25,8 @@ namespace Cave.Service
     [DesignerCategory("Code")]
     public abstract class ServiceProgram : System.ServiceProcess.ServiceBase
     {
+        Logger log = new Logger("Service");
+
         /// <summary>Gets the commandline arguments if <see cref="ServiceParameters.CommandLineMode"/> == true.</summary>
         /// <value>The commandline arguments or <c>null</c>.</value>
         public Arguments CommandlineArguments { get; private set; }
@@ -87,7 +90,7 @@ namespace Cave.Service
                 }
                 else
                 {
-                    this.LogInfo("Press escape within <cyan>{0}<default> to perform shutdown.", OnKeyPressedEscapeShutdownTimeSpan.FormatTime());
+                    log.LogInfo("Press escape within <cyan>{0}<default> to perform shutdown.", OnKeyPressedEscapeShutdownTimeSpan.FormatTime());
                 }
             }
         }
@@ -102,7 +105,7 @@ namespace Cave.Service
         #region application domain unhandled error logging
         void UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            Exception ex = e.ExceptionObject as Exception;
+            var ex = e.ExceptionObject as Exception;
             string msg = "Unhandled exception!";
             if (e.IsTerminating)
             {
@@ -111,11 +114,11 @@ namespace Cave.Service
 
             if (ex != null)
             {
-                this.LogEmergency(ex, msg + "\n" + ex.ToXT());
+                log.LogEmergency(ex, msg + "\n" + ex.ToXT());
             }
             else
             {
-                this.LogEmergency(ex, msg);
+                log.LogEmergency(ex, msg);
             }
         }
         #endregion
@@ -124,17 +127,17 @@ namespace Cave.Service
         /// <exception cref="System.InvalidOperationException">Throws if another instance is alreaqdy running.</exception>
         void RunWorker()
         {
-            this.LogDebug("Enter Service Mutex");
+            log.LogDebug("Enter Service Mutex");
 
             try
             {
-                Mutex mutex = new Mutex(true, ServiceName, out bool singleInstance);
+                var mutex = new Mutex(true, ServiceName, out bool singleInstance);
                 try
                 {
                     if (!singleInstance)
                     {
                         string msg = string.Format("Another instance of {0} is already running on this machine!", ServiceName);
-                        this.LogError(msg);
+                        log.LogError(msg);
                         throw new InvalidOperationException(msg);
                     }
                     Worker();
@@ -147,9 +150,9 @@ namespace Cave.Service
             }
             catch (Exception ex)
             {
-                this.LogEmergency(ex, "<red>Error: <default>A fatal unhandled exception was encountered at the main service worker. See logging for details.");
+                log.LogEmergency(ex, "<red>Error: <default>A fatal unhandled exception was encountered at the main service worker. See logging for details.");
             }
-            this.LogDebug("Exit Service Mutex");
+            log.LogDebug("Exit Service Mutex");
             Logger.Flush();
         }
 
@@ -158,7 +161,7 @@ namespace Cave.Service
         /// <summary>Shows the help for this instance in commandline mode.</summary>
         protected virtual void Help()
         {
-            this.LogInfo("Invalid commandline option used.\n" +
+            log.LogInfo("Invalid commandline option used.\n" +
                 "\n" +
                 "Usage: " + Path.GetFileNameWithoutExtension(FileSystem.ProgramFileName) + " [option]\n" +
                 "\n" +
@@ -177,7 +180,7 @@ namespace Cave.Service
         /// </summary>
         void CommandLineRun()
         {
-            this.LogInfo("Initializing service <cyan>{0}<default> commandline instance...\nRelease: <magenta>{1}<default>, FileVersion: <magenta>{2}<default>", ServiceName, VersionInfo.AssemblyVersion, VersionInfo.FileVersion);
+            log.LogInfo("Initializing service <cyan>{0}<default> commandline instance...\nRelease: <magenta>{1}<default>, FileVersion: <magenta>{2}<default>", ServiceName, VersionInfo.AssemblyVersion, VersionInfo.FileVersion);
             bool needAdminRights = false;
             if (Platform.IsMicrosoft)
             {
@@ -199,9 +202,9 @@ namespace Cave.Service
                         throw new InvalidOperationException("Please debug this program in administration mode!");
                     }
 
-                    this.LogNotice("Restarting service with administration rights!");
+                    log.LogNotice("Restarting service with administration rights!");
                     Logger.CloseAll();
-                    ProcessStartInfo processStartInfo = new ProcessStartInfo(CommandlineArguments.Command, CommandlineArguments.ToString(false) + " --wait")
+                    var processStartInfo = new ProcessStartInfo(CommandlineArguments.Command, CommandlineArguments.ToString(false) + " --wait")
                     {
                         UseShellExecute = true,
                         Verb = "runas",
@@ -211,11 +214,11 @@ namespace Cave.Service
                 }
                 if (HasAdminRights)
                 {
-                    this.LogInfo("Current user has <green>admin<default> rights.");
+                    log.LogInfo("Current user has <green>admin<default> rights.");
                 }
                 else
                 {
-                    this.LogInfo("Running in <red>debug<default> mode <red>without admin<default> rights.");
+                    log.LogInfo("Running in <red>debug<default> mode <red>without admin<default> rights.");
                 }
             }
 
@@ -225,7 +228,7 @@ namespace Cave.Service
             if (Debugger.IsAttached)
             {
                 runCommandLine = true;
-                this.LogInfo("<red>Debugger<default> attached.");
+                log.LogInfo("<red>Debugger<default> attached.");
             }
             else
             {
@@ -257,7 +260,7 @@ namespace Cave.Service
                             }
                             else
                             {
-                                this.LogError("Ignore <red>start<default> service command, doing commandline run!");
+                                log.LogError("Ignore <red>start<default> service command, doing commandline run!");
                             }
 
                             break;
@@ -268,7 +271,7 @@ namespace Cave.Service
                             }
                             else
                             {
-                                this.LogError("Ignore <red>stop<default> service command, doing commandline run!");
+                                log.LogError("Ignore <red>stop<default> service command, doing commandline run!");
                             }
 
                             break;
@@ -279,7 +282,7 @@ namespace Cave.Service
                             }
                             else
                             {
-                                this.LogError("Ignore <red>install<default> service command, doing commandline run!");
+                                log.LogError("Ignore <red>install<default> service command, doing commandline run!");
                             }
 
                             break;
@@ -290,7 +293,7 @@ namespace Cave.Service
                             }
                             else
                             {
-                                this.LogError("Ignore <red>uninstall<default> service command, doing commandline run!");
+                                log.LogError("Ignore <red>uninstall<default> service command, doing commandline run!");
                             }
 
                             break;
@@ -312,7 +315,7 @@ namespace Cave.Service
                 }
                 catch (Exception ex)
                 {
-                    this.LogError("Error while running service executable in commandline mode.\n" + ex.ToXT());
+                    log.LogError("Error while running service executable in commandline mode.\n" + ex.ToXT());
                 }
 
                 // --- exit
@@ -349,7 +352,7 @@ namespace Cave.Service
                 return;
             }
 
-            this.LogInfo("Starting service <cyan>{0}<default>...", ServiceName);
+            log.LogInfo("Starting service <cyan>{0}<default>...", ServiceName);
             base.OnStart(args);
             ServiceParameters = new ServiceParameters(HasAdminRights, false, false);
             task = Task.Factory.StartNew(() =>
@@ -357,7 +360,7 @@ namespace Cave.Service
                 RunWorker();
                 base.OnStop();
             }, TaskCreationOptions.LongRunning);
-            this.LogInfo("Service <cyan>{0}<default> started.", ServiceName);
+            log.LogInfo("Service <cyan>{0}<default> started.", ServiceName);
         }
 
         /// <summary>
@@ -370,7 +373,7 @@ namespace Cave.Service
                 return;
             }
 
-            this.LogInfo("Stopping service <cyan>{0}<default>...", ServiceName);
+            log.LogInfo("Stopping service <cyan>{0}<default>...", ServiceName);
             ServiceParameters.IsStopping = true;
             if (!ServiceParameters.CommandLineMode)
             {
@@ -384,7 +387,7 @@ namespace Cave.Service
                 task = null;
             }
             ServiceParameters = null;
-            this.LogInfo("Service <cyan>{0}<default> stopped.", ServiceName);
+            log.LogInfo("Service <cyan>{0}<default> stopped.", ServiceName);
         }
         #endregion
 
@@ -392,7 +395,7 @@ namespace Cave.Service
         public ServiceProgram()
             : base()
         {
-            this.LogInfo("Initializing Service instance.");
+            log.LogInfo("Initializing Service instance.");
             AppDomain.CurrentDomain.UnhandledException += UnhandledException;
 
             Type type = GetType();
@@ -461,7 +464,7 @@ namespace Cave.Service
             {
                 LogSystem.ExceptionMode = LogExceptionMode.Full;
             }
-            this.LogInfo("Service <cyan>{0}<default> initialized!", ServiceName);
+            log.LogInfo("Service <cyan>{0}<default> initialized!", ServiceName);
         }
 
         #region public Run() function
@@ -492,7 +495,7 @@ namespace Cave.Service
             }
             catch (Exception ex)
             {
-                this.LogEmergency(ex, "Unhandled exception:\n" + ex.ToXT());
+                log.LogEmergency(ex, "Unhandled exception:\n" + ex.ToXT());
             }
             finally
             {

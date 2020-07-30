@@ -60,7 +60,7 @@ namespace Cave.Service
         /// <param name="content">The content.</param>
         protected override void Write(DateTime dateTime, LogLevel level, string source, XT content)
         {
-            SyslogSeverity severity = (SyslogSeverity)Math.Min((int)level, (int)SyslogSeverity.Debug);
+            var severity = (SyslogSeverity)Math.Min((int)level, (int)SyslogSeverity.Debug);
             Syslog.Write(severity, Facility, content.Text);
         }
     }

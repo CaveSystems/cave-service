@@ -4,7 +4,6 @@ using System.Security;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Cave.Console;
 using Cave.Logging;
 
 namespace Cave.Service

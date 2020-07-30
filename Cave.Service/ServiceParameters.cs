@@ -8,6 +8,8 @@ namespace Cave.Service
     /// </summary>
     public sealed class ServiceParameters
     {
+        Logger log = new Logger("Service");
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ServiceParameters"/> class.
         /// </summary>
@@ -51,7 +53,7 @@ namespace Cave.Service
         /// </summary>
         public void CommitShutdown()
         {
-            this.LogInfo("Shutdown initiated.");
+            log.LogInfo("Shutdown initiated.");
             Shutdown = true;
             lock (this)
             {
