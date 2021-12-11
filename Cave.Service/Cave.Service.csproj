@@ -1,14 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>net20;net35;net40;net45</TargetFrameworks>
-    <Authors>Andreas Rohleder</Authors>
-    <Company>CaveSystems GmbH, Andreas Rohleder</Company>
-    <Copyright>(c) 2003-$([System.DateTime]::UtcNow.Year) Andreas Rohleder</Copyright>
-    <PackageIcon>cavesystems.jpg</PackageIcon>
-    <PackageLicenseExpression>LGPL-3.0-only</PackageLicenseExpression>
-    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
-    <FileVersion>$([System.DateTime]::UtcNow.Year).$([System.DateTime]::UtcNow.ToString("MMdd")).$([System.DateTime]::UtcNow.ToString("HHmm")).$([System.DateTime]::UtcNow.ToString("ssfff"))</FileVersion>
-    <LangVersion>7.3</LangVersion>
     <!--project-->
     <RootNamespace>Cave.Service</RootNamespace>
     <AssemblyOriginatorKeyFile>Cave.Service.snk</AssemblyOriginatorKeyFile>
@@ -21,32 +13,8 @@
     <NeutralLanguage />
     <PackageReleaseNotes />
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <SignAssembly>true</SignAssembly>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <NeutralLanguage />
-    <DelaySign>false</DelaySign>
-    <DebugType>portable</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-    <IncludeSymbols>true</IncludeSymbols>
-    <IncludeSymbolsInPackage>true</IncludeSymbolsInPackage>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <Deterministic>true</Deterministic>
-    <DeterministicSourcePaths>false</DeterministicSourcePaths>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>TRACE;DEBUG;</DefineConstants>
-  </PropertyGroup>
-  <!-- defines -->
-  <PropertyGroup>
-    <DefineConstants Condition=" !$(DefineConstants.Contains(';NET')) ">$(DefineConstants);NET$(TargetFramework.ToUpper().Replace("_", "").Replace(".", "").Replace("NET", ""))</DefineConstants>
-    <DefineConstants Condition=" $(DefineConstants.Contains(';NET')) ">$(DefineConstants.Remove($(DefineConstants.LastIndexOf(";NET"))));NET$(TargetFramework.ToUpper().Replace("_", "").Replace(".", "").Replace("NET", ""))</DefineConstants>
-  </PropertyGroup>
+
   <!-- framework includes -->
   <ItemGroup Condition="'$(TargetFramework)'=='net40' OR '$(TargetFramework)'=='net45' OR '$(TargetFramework)'=='net46' OR '$(TargetFramework)'=='net47' OR '$(TargetFramework)'=='net48'">
     <Reference Include="System" />
@@ -67,27 +35,13 @@
     <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
-  <!-- package files -->
-  <ItemGroup>
-    <None Include="cavesystems.jpg" Pack="true" PackagePath="\" />
-  </ItemGroup>
-  <!-- solution items -->
-  <ItemGroup>
-    <None Remove="stylecop.json" />
-    <AdditionalFiles Include="stylecop.json" />
-    <Folder Include="Properties\" />
-  </ItemGroup>
   <!-- nuget packages -->
   <ItemGroup>
-    <PackageReference Include="Cave.Console" Version="2.0.0" />
-    <PackageReference Include="Cave.Extensions" Version="2.0.1" />
-    <PackageReference Include="Cave.IO" Version="2.0.1" />
-    <PackageReference Include="Cave.Logging" Version="2.0.0" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+    <PackageReference Include="Cave.Console" Version="2.1.0" />
+    <PackageReference Include="Cave.Extensions" Version="2.1.4" />
+    <PackageReference Include="Cave.IO" Version="2.1.4" />
+    <PackageReference Include="Cave.Logging" Version="2.1.0" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

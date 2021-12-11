@@ -203,7 +203,7 @@ namespace Cave.Service
                     }
 
                     log.LogNotice("Restarting service with administration rights!");
-                    Logger.CloseAll();
+                    Logger.Close();
                     var processStartInfo = new ProcessStartInfo(CommandlineArguments.Command, CommandlineArguments.ToString(false) + " --wait")
                     {
                         UseShellExecute = true,
@@ -506,7 +506,7 @@ namespace Cave.Service
                 }
 
                 Logger.Flush();
-                Logger.CloseAll();
+                Logger.Close();
                 SystemConsole.RemoveKeyPressedEvent();
                 if (Debugger.IsAttached)
                 {

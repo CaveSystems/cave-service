@@ -12,7 +12,7 @@ pool:
   vmImage: 'windows-latest'
 
 variables:
-  fixedBuildVersion: '2.0'
+  fixedBuildVersion: '2.1'
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
@@ -73,15 +73,30 @@ steps:
 - task: VSBuild@1
   displayName: Build solution
   inputs:
+    maximumCpuCount: true
     solution: '$(solution)'
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
 - task: VSTest@2
+  displayName: Test netcore, net5+
   inputs:
+    runInParallel: true
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
-    testAssemblyVer2: '**\bin\Release\**\Test.exe'
+    codeCoverageEnabled: true
+    testAssemblyVer2: |
+      **/bin/Release/net*/Test.dll
+
+- task: VSTest@2
+  displayName: Test net2x, net3x, net4x
+  inputs:
+    runInParallel: true
+    platform: '$(buildPlatform)'
+    configuration: '$(buildConfiguration)'
+    codeCoverageEnabled: true
+    testAssemblyVer2: |
+      **/bin/Release/net*/Test.exe
 
 - task: NuGetCommand@2
   displayName: Push to nuget (release)
