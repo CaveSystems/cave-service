@@ -1,39 +1,31 @@
-#if !NETSTANDARD20
-
 using System;
 using System.Collections;
 using System.Configuration.Install;
 using System.ServiceProcess;
-using Cave.Console;
-using Cave.IO;
 using Cave.Logging;
 
 namespace Cave.Service
 {
-    /// <summary>
-    /// Provides common service tasks for the server service.
-    /// </summary>
+    /// <summary>Provides common service tasks for the server service.</summary>
     public static class ServiceHelper
     {
+        #region Private Properties
+
         static ServiceController Controller => new ServiceController(ServiceName);
 
-        /// <summary>
-        /// Gets or sets the name of the service the helper is working on.
-        /// This defaults to the product name.
-        /// </summary>
-        public static string ServiceName { get; set; } = AssemblyVersionInfo.Program.Product;
+        #endregion Private Properties
 
-        /// <summary>
-        /// Gets a value indicating whether the server service is installed or not.
-        /// </summary>
+        #region Public Properties
+
+        /// <summary>Gets a value indicating whether the server service is installed or not.</summary>
         public static bool IsInstalled
         {
             get
             {
                 try
                 {
-                    ServiceController controller = Controller;
-                    bool result = controller != null;
+                    var controller = Controller;
+                    var result = controller != null;
                     controller.Dispose();
                     return result;
                 }
@@ -45,17 +37,15 @@ namespace Cave.Service
             }
         }
 
-        /// <summary>
-        /// Gets a value indicating whether the server service is running or not.
-        /// </summary>
+        /// <summary>Gets a value indicating whether the server service is running or not.</summary>
         public static bool IsRunning
         {
             get
             {
                 try
                 {
-                    ServiceController controller = Controller;
-                    bool result = controller.Status != ServiceControllerStatus.Stopped;
+                    var controller = Controller;
+                    var result = controller.Status != ServiceControllerStatus.Stopped;
                     controller.Dispose();
                     return result;
                 }
@@ -67,81 +57,14 @@ namespace Cave.Service
             }
         }
 
-        /// <summary>
-        /// Stops the server service.
-        /// </summary>
-        /// <returns>True if the service could be stopped without errors.</returns>
-        public static bool StopService()
-        {
-            Logger.LogInfo("ServiceHelper", string.Format("Stopping service..."));
-            try
-            {
-                ServiceController controller = Controller;
-                if (controller.Status == ServiceControllerStatus.Stopped)
-                {
-                    return true;
-                }
+        /// <summary>Gets or sets the name of the service the helper is working on. This defaults to the product name.</summary>
+        public static string ServiceName { get; set; } = AssemblyVersionInfo.Program.Product;
 
-                controller.Stop();
-                controller.WaitForStatus(ServiceControllerStatus.Stopped, TimeSpan.FromSeconds(10));
-                bool result = controller.Status == ServiceControllerStatus.Stopped;
-                controller.Dispose();
-                if (result)
-                {
-                    Logger.LogNotice("ServiceHelper", "Service stopped successfully.");
-                }
-                else
-                {
-                    Logger.LogWarning("ServiceHelper", "Service could not be stopped!");
-                }
-                return result;
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError("ServiceHelper", ex, "Error while stopping service:\n" + ex.ToXT());
-                return false;
-            }
-        }
+        #endregion Public Properties
 
-        /// <summary>
-        /// Starts the server service.
-        /// </summary>
-        /// <returns>True if the service could be started without errors.</returns>
-        public static bool StartService()
-        {
-            Logger.LogInfo("ServiceHelper", string.Format("Starting service..."));
-            try
-            {
-                ServiceController controller = Controller;
-                if (controller.Status == ServiceControllerStatus.Running)
-                {
-                    return true;
-                }
+        #region Public Methods
 
-                controller.Start();
-                controller.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromSeconds(10));
-                bool result = controller.Status == ServiceControllerStatus.Running;
-                controller.Dispose();
-                if (result)
-                {
-                    Logger.LogNotice("ServiceHelper", "Service started successfully.");
-                }
-                else
-                {
-                    Logger.LogWarning("ServiceHelper", "Service could not be started!");
-                }
-                return result;
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError("ServiceHelper", "Error while starting service:\n" + ex.ToXT());
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// Installs the server service.
-        /// </summary>
+        /// <summary>Installs the server service.</summary>
         /// <returns>True if the service could be installed without errors.</returns>
         public static bool InstallService()
         {
@@ -172,9 +95,75 @@ namespace Cave.Service
             }
         }
 
-        /// <summary>
-        /// Uninstalls the server service.
-        /// </summary>
+        /// <summary>Starts the server service.</summary>
+        /// <returns>True if the service could be started without errors.</returns>
+        public static bool StartService()
+        {
+            Logger.LogInfo("ServiceHelper", string.Format("Starting service..."));
+            try
+            {
+                var controller = Controller;
+                if (controller.Status == ServiceControllerStatus.Running)
+                {
+                    return true;
+                }
+
+                controller.Start();
+                controller.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromSeconds(10));
+                var result = controller.Status == ServiceControllerStatus.Running;
+                controller.Dispose();
+                if (result)
+                {
+                    Logger.LogNotice("ServiceHelper", "Service started successfully.");
+                }
+                else
+                {
+                    Logger.LogWarning("ServiceHelper", "Service could not be started!");
+                }
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("ServiceHelper", "Error while starting service:\n" + ex.ToXT());
+                return false;
+            }
+        }
+
+        /// <summary>Stops the server service.</summary>
+        /// <returns>True if the service could be stopped without errors.</returns>
+        public static bool StopService()
+        {
+            Logger.LogInfo("ServiceHelper", string.Format("Stopping service..."));
+            try
+            {
+                var controller = Controller;
+                if (controller.Status == ServiceControllerStatus.Stopped)
+                {
+                    return true;
+                }
+
+                controller.Stop();
+                controller.WaitForStatus(ServiceControllerStatus.Stopped, TimeSpan.FromSeconds(10));
+                var result = controller.Status == ServiceControllerStatus.Stopped;
+                controller.Dispose();
+                if (result)
+                {
+                    Logger.LogNotice("ServiceHelper", "Service stopped successfully.");
+                }
+                else
+                {
+                    Logger.LogWarning("ServiceHelper", "Service could not be stopped!");
+                }
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("ServiceHelper", ex, "Error while stopping service:\n" + ex.ToXT());
+                return false;
+            }
+        }
+
+        /// <summary>Uninstalls the server service.</summary>
         /// <returns>True if the service could be uninstalled without errors.</returns>
         public static bool UnInstallService()
         {
@@ -208,7 +197,7 @@ namespace Cave.Service
                 }
             }
         }
+
+        #endregion Public Methods
     }
 }
-
-#endif

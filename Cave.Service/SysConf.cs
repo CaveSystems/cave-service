@@ -1,15 +1,17 @@
 // ignore missing comments on this file
 // TODO complete and add missing comments
 #pragma warning disable 1591
-#pragma warning disable SA1602 // Enumeration items should be documented
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Cave.Service
 {
     /// <summary>
     /// Provides all _SC_ constants.
     /// </summary>
+    [SuppressMessage("Naming", "CA1707:Underline", Justification = "System constants")]
+    [SuppressMessage("Design", "CA1041:Obsolete messages", Justification = "See system docs")]
     public enum SysConf
     {
         /// <summary>

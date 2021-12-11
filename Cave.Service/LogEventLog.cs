@@ -116,7 +116,7 @@ namespace Cave.Service
                 return;
             }
 
-            EventLogEntryType type = EventLogEntryType.Information;
+            var type = EventLogEntryType.Information;
             if (level <= LogLevel.Warning)
             {
                 type = EventLogEntryType.Warning;

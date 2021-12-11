@@ -1,5 +1,4 @@
 ﻿using System;
-using Cave.Console;
 using Cave.Logging;
 
 namespace Cave.Service

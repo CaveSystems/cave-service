@@ -33,7 +33,7 @@ namespace Cave.Service
                 return;
             }
 
-            string l_ProcessName = Process.GetCurrentProcess().ProcessName;
+            var l_ProcessName = Process.GetCurrentProcess().ProcessName;
             processNamePtr = Marshal.StringToHGlobalAnsi(l_ProcessName);
             libc.SafeNativeMethods.openlog(processNamePtr, new IntPtr((int)option), new IntPtr((int)facility));
         }
@@ -53,7 +53,7 @@ namespace Cave.Service
                     return;
                 }
 
-                int l_Priority = (((int)facility) << 3) | ((int)severity);
+                var l_Priority = (((int)facility) << 3) | ((int)severity);
                 libc.SafeNativeMethods.syslog(l_Priority, msg);
             }
         }

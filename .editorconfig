@@ -20,7 +20,7 @@ insert_final_newline = true
 # Using-Direktiven organisieren
 dotnet_separate_import_directive_groups = false
 dotnet_sort_system_directives_first = true
-file_header_template = 
+file_header_template =
 
 # this.- und Me.-Einstellungen
 dotnet_style_qualification_for_event = false
@@ -214,48 +214,48 @@ dotnet_naming_rule.const_field_should_be_pascalcase.style = pascalcase
 
 dotnet_naming_symbols.interface.applicable_kinds = interface
 dotnet_naming_symbols.interface.applicable_accessibilities = public, internal, private, protected, protected_internal, private_protected
-dotnet_naming_symbols.interface.required_modifiers = 
+dotnet_naming_symbols.interface.required_modifiers =
 
 dotnet_naming_symbols.private_field.applicable_kinds = field, local
 dotnet_naming_symbols.private_field.applicable_accessibilities = private, private_protected, local
-dotnet_naming_symbols.private_field.required_modifiers = 
+dotnet_naming_symbols.private_field.required_modifiers =
 
 dotnet_naming_symbols.non_private.applicable_kinds = namespace, property, field, event, local, class, struct, enum, delegate, method, local_function
 dotnet_naming_symbols.non_private.applicable_accessibilities = public, internal, protected, protected_internal, private_protected
-dotnet_naming_symbols.non_private.required_modifiers = 
+dotnet_naming_symbols.non_private.required_modifiers =
 
 dotnet_naming_symbols.type_parameter.applicable_kinds = type_parameter
 dotnet_naming_symbols.type_parameter.applicable_accessibilities = *
-dotnet_naming_symbols.type_parameter.required_modifiers = 
+dotnet_naming_symbols.type_parameter.required_modifiers =
 
 dotnet_naming_symbols.parameter.applicable_kinds = parameter
 dotnet_naming_symbols.parameter.applicable_accessibilities = *
-dotnet_naming_symbols.parameter.required_modifiers = 
+dotnet_naming_symbols.parameter.required_modifiers =
 
 dotnet_naming_symbols.public_field.applicable_kinds = field, local
 dotnet_naming_symbols.public_field.applicable_accessibilities = public, internal, protected, protected_internal, private_protected
-dotnet_naming_symbols.public_field.required_modifiers = 
+dotnet_naming_symbols.public_field.required_modifiers =
 
 # Benennungsstile
 
-dotnet_naming_style.pascalcase.required_prefix = 
-dotnet_naming_style.pascalcase.required_suffix = 
-dotnet_naming_style.pascalcase.word_separator = 
+dotnet_naming_style.pascalcase.required_prefix =
+dotnet_naming_style.pascalcase.required_suffix =
+dotnet_naming_style.pascalcase.word_separator =
 dotnet_naming_style.pascalcase.capitalization = pascal_case
 
 dotnet_naming_style.ipascalcase.required_prefix = I
-dotnet_naming_style.ipascalcase.required_suffix = 
-dotnet_naming_style.ipascalcase.word_separator = 
+dotnet_naming_style.ipascalcase.required_suffix =
+dotnet_naming_style.ipascalcase.word_separator =
 dotnet_naming_style.ipascalcase.capitalization = pascal_case
 
-dotnet_naming_style.snakecase.required_prefix = 
-dotnet_naming_style.snakecase.required_suffix = 
-dotnet_naming_style.snakecase.word_separator = 
+dotnet_naming_style.snakecase.required_prefix =
+dotnet_naming_style.snakecase.required_suffix =
+dotnet_naming_style.snakecase.word_separator =
 dotnet_naming_style.snakecase.capitalization = camel_case
 
 dotnet_naming_style.tpascalcase.required_prefix = T
-dotnet_naming_style.tpascalcase.required_suffix = 
-dotnet_naming_style.tpascalcase.word_separator = 
+dotnet_naming_style.tpascalcase.required_suffix =
+dotnet_naming_style.tpascalcase.word_separator =
 dotnet_naming_style.tpascalcase.capitalization = pascal_case
 
 ### Analysetools
@@ -264,6 +264,7 @@ dotnet_diagnostic.removeunnecessaryimportsfixable.severity = suggestion
 dotnet_diagnostic.ca1001.severity = warning
 dotnet_diagnostic.ca1200.severity = silent
 dotnet_diagnostic.ca1309.severity = silent
+dotnet_diagnostic.ca1416.severity = silent
 dotnet_diagnostic.ca3076.severity = suggestion
 dotnet_diagnostic.ca3077.severity = suggestion
 dotnet_diagnostic.ide0004.severity = suggestion
@@ -782,7 +783,7 @@ dotnet_style_parentheses_in_relational_binary_operators = always_for_clarity:war
 dotnet_style_predefined_type_for_locals_parameters_members = true:suggestion
 dotnet_style_predefined_type_for_member_access = true:suggestion
 dotnet_style_require_accessibility_modifiers = never:warning
-file_header_template = 
+file_header_template =
 
 # ReSharper properties
 resharper_alignment_tab_fill_style = use_spaces
@@ -1059,8 +1060,8 @@ resharper_line_break_before_requires_clause = do_not_change
 resharper_linkage_specification_braces = end_of_line
 resharper_linkage_specification_indentation = none
 resharper_local_function_body = expression_body
-resharper_macro_block_begin = 
-resharper_macro_block_end = 
+resharper_macro_block_begin =
+resharper_macro_block_end =
 resharper_max_array_initializer_elements_on_line = 16
 resharper_max_attribute_length_for_same_line = 0
 resharper_max_enum_members_on_line = 16
@@ -1131,7 +1132,7 @@ resharper_requires_expression_braces = next_line
 resharper_resx_attribute_indent = single_indent
 resharper_resx_indent_text = OneIndent
 resharper_resx_keep_user_linebreaks = true
-resharper_resx_linebreak_before_elements = 
+resharper_resx_linebreak_before_elements =
 resharper_resx_max_blank_lines_between_tags = 0
 resharper_resx_max_line_length = 2147483647
 resharper_resx_pi_attributes_indent = align_by_first_attribute
@@ -1406,7 +1407,7 @@ resharper_xmldoc_wrap_text = true
 resharper_xml_attribute_indent = align_by_first_attribute
 resharper_xml_indent_text = OneIndent
 resharper_xml_keep_user_linebreaks = true
-resharper_xml_linebreak_before_elements = 
+resharper_xml_linebreak_before_elements =
 resharper_xml_max_blank_lines_between_tags = 2
 resharper_xml_max_line_length = 120
 resharper_xml_pi_attributes_indent = align_by_first_attribute

@@ -104,10 +104,10 @@ namespace Cave.Service
         /// <returns>The unix distro name.</returns>
         public static string GetUnixName()
         {
-            IntPtr buf = Marshal.AllocHGlobal(8192);
+            var buf = Marshal.AllocHGlobal(8192);
             try
             {
-                int i = SafeNativeMethods.uname(buf);
+                var i = SafeNativeMethods.uname(buf);
                 return Marshal.PtrToStringAnsi(buf, i);
             }
             finally
