@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Cave.Service\Cave.Service.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="System.ServiceProcess.ServiceController" Version="8.0.0" />
+    </ItemGroup>
+
+</Project>
