@@ -73,7 +73,7 @@ steps:
   displayName: 'Install .NET sdk 8'
   inputs:
     packageType: sdk
-    version: 7.x
+    version: 8.x
     installationPath: $(Agent.ToolsDirectory)/dotnet
 
 - task: UseDotNet@2
