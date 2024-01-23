@@ -1,23 +1,22 @@
-﻿#if NET5_0
+﻿#if NET5_0_OR_GREATER
 
 using System.Diagnostics;
 
-namespace System.Configuration.Install
+namespace System.Configuration.Install;
+
+internal static class CompModSwitches
 {
-    internal static class CompModSwitches
-    {
-        #region Private Fields
+    #region Private Fields
 
-        private static TraceSwitch _installerDesign;
+    private static TraceSwitch _installerDesign;
 
-        #endregion Private Fields
+    #endregion Private Fields
 
-        #region Public Properties
+    #region Public Properties
 
-        public static TraceSwitch InstallerDesign => CompModSwitches._installerDesign ?? (CompModSwitches._installerDesign = new TraceSwitch(nameof(InstallerDesign), "Enable tracing for design-time code for installers"));
+    public static TraceSwitch InstallerDesign => CompModSwitches._installerDesign ?? (CompModSwitches._installerDesign = new TraceSwitch(nameof(InstallerDesign), "Enable tracing for design-time code for installers"));
 
-        #endregion Public Properties
-    }
+    #endregion Public Properties
 }
 
 #endif

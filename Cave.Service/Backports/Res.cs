@@ -1,21 +1,22 @@
-﻿#if NET5_0
+﻿#if NET5_0_OR_GREATER
+
+#pragma warning disable CS1591
 
 using System.Linq;
 using Cave;
 
-namespace System.Configuration.Install
+namespace System.Configuration.Install;
+
+internal static class Res
 {
-    internal static class Res
+    #region Public Methods
+
+    public static string GetString(string text, params object[] args)
     {
-        #region Public Methods
-
-        public static string GetString(string text, params object[] args)
-        {
-            return text + (" " + args?.Join(" ")).Trim();
-        }
-
-        #endregion Public Methods
+        return text + (" " + args?.Join(" ")).Trim();
     }
+
+    #endregion Public Methods
 }
 
 #endif

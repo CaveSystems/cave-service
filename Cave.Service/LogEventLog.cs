@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Security;
 using System.Text;
@@ -6,190 +7,230 @@ using System.Threading;
 using System.Threading.Tasks;
 using Cave.Logging;
 
-namespace Cave.Service
+namespace Cave.Service;
+
+/// <summary>Provides simple ugly event logging for windows.</summary>
+public sealed class LogEventLog : LogReceiver, IDisposable
 {
-    /// <summary>
-    /// Provides simple ugly event logging for windows.
-    /// </summary>
-    public sealed class LogEventLog : LogReceiver, IDisposable
+    #region Private Classes
+
+    class LogEventLogWriter : ILogWriter
     {
-        /// <summary>Retrieves the process name of the process generating the messages (defaults to the program name).</summary>
-        public readonly string ProcessName;
+        #region Private Fields
 
-        /// <summary>Retrieves the target event log name.</summary>
-        public readonly string LogName;
+        readonly object writeLock = new();
+        bool closed = false;
+        LogEventLog eventLog;
 
-        EventLog eventLog = null;
-        LogLevel logLevel = LogLevel.Information;
+        #endregion Private Fields
 
-        void Init()
+        #region Public Constructors
+
+        public LogEventLogWriter(LogEventLog eventLog) => this.eventLog = eventLog ?? throw new ArgumentNullException(nameof(eventLog));
+
+        #endregion Public Constructors
+
+        #region Public Properties
+
+        public bool IsClosed => closed;
+
+        #endregion Public Properties
+
+        #region Public Methods
+
+        public void Close() => closed = true;
+
+        public void Write(LogMessage message, IEnumerable<ILogText> items)
         {
-            try
+            lock (eventLog.currentMessage)
             {
-                if (!EventLog.SourceExists(ProcessName))
+                if (eventLog == null)
                 {
-                    EventLog.CreateEventSource(ProcessName, LogName);
+                    return;
                 }
-                if (!EventLog.SourceExists(ProcessName))
+
+                if (message.Level > eventLog.logLevel)
                 {
-                    throw new NotSupportedException(string.Format("Due to a bug in the event log system you need to restart this program once (newly created event source is not reported back to the creating process until process recreation)!"));
+                    return;
                 }
-            }
-            catch (SecurityException ex)
-            {
-                throw new SecurityException(string.Format("The event source {0} does not exist and the current user has no right to create it!", ProcessName), ex);
-            }
-            eventLog = new EventLog(LogName, ".", ProcessName);
-        }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="LogEventLog"/> class,
-        /// with the default process name and at the default log: "Application:ProcessName".
-        /// </summary>
-        public LogEventLog()
-        {
-            if (!Platform.IsMicrosoft)
-            {
-                throw new InvalidOperationException("Do not use LogEventLog on non Microsoft Platforms!");
-            }
-
-            ProcessName = Process.GetCurrentProcess().ProcessName;
-            LogName = "Application";
-            Init();
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="LogEventLog"/> class.
-        /// </summary>
-        /// <param name="eventLog">The event log.</param>
-        public LogEventLog(EventLog eventLog)
-        {
-            this.eventLog = eventLog ?? throw new ArgumentNullException("eventLog");
-            ProcessName = Process.GetCurrentProcess().ProcessName;
-            LogName = this.eventLog.Log;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="LogEventLog"/> class.
-        /// </summary>
-        /// <param name="eventLog">The event log.</param>
-        /// <param name="processName">The process name.</param>
-        public LogEventLog(EventLog eventLog, string processName)
-        {
-            this.eventLog = eventLog ?? throw new ArgumentNullException("eventLog");
-            LogName = this.eventLog.Log;
-            ProcessName = processName;
-        }
-
-        #region ILogReceiver Member
-
-        readonly StringBuilder currentMessage = new StringBuilder();
-        EventLogEntryType currentType = EventLogEntryType.Information;
-        Task flushTask;
-
-        void Flush()
-        {
-            lock (currentMessage)
-            {
-                if (currentMessage.Length > 0)
+                var type = EventLogEntryType.Information;
+                if (message.Level <= LogLevel.Warning)
                 {
-                    eventLog.WriteEntry(currentMessage.ToString(), currentType);
-                    currentMessage.Length = 0;
+                    type = EventLogEntryType.Warning;
                 }
-            }
-        }
-
-        /// <summary>Writes the specified log message.</summary>
-        /// <param name="dateTime">The date time.</param>
-        /// <param name="level">The level.</param>
-        /// <param name="source">The source.</param>
-        /// <param name="content">The content.</param>
-        protected override void Write(DateTime dateTime, LogLevel level, string source, XT content)
-        {
-            if (eventLog == null)
-            {
-                return;
-            }
-
-            if (level > logLevel)
-            {
-                return;
-            }
-
-            var type = EventLogEntryType.Information;
-            if (level <= LogLevel.Warning)
-            {
-                type = EventLogEntryType.Warning;
-            }
-
-            if (level <= LogLevel.Error)
-            {
-                type = EventLogEntryType.Error;
-            }
-
-            lock (currentMessage)
-            {
-                if (type != currentType || currentMessage.Length > 16384)
+                if (message.Level <= LogLevel.Error)
                 {
-                    Flush();
+                    type = EventLogEntryType.Error;
                 }
-                currentType = type;
-                currentMessage.Append(dateTime.ToLocalTime().ToString());
-                currentMessage.Append(" Source: ");
-                currentMessage.Append(source);
-                currentMessage.Append(" Message: ");
-                currentMessage.Append(content.Text.Trim('\r', '\n'));
-                currentMessage.AppendLine();
-            }
 
-            if (flushTask == null)
-            {
-                flushTask = Task.Factory.StartNew(() =>
+                if (type != eventLog.currentType || eventLog.currentMessage.Length > 16384)
                 {
-                    if (!Monitor.TryEnter(this))
+                    eventLog.Flush();
+                }
+                eventLog.currentType = type;
+                var lf = false;
+                foreach (var item in items)
+                {
+                    if (item.Equals(LogText.NewLine))
                     {
-                        return;
+                        eventLog.currentMessage.AppendLine(item.Text);
+                        lf = true;
                     }
+                    else
+                    {
+                        eventLog.currentMessage.Append(item.Text);
+                    }
+                }
+                if (!lf) eventLog.currentMessage?.AppendLine();
 
-                    Thread.Sleep(1000);
-                    flushTask = null;
-                    Flush();
-                    Monitor.Exit(this);
-                });
-            }
-        }
-
-        /// <summary>Closes the <see cref="LogReceiver" />.</summary>
-        public override void Close()
-        {
-            Flush();
-            base.Close();
-        }
-
-        #endregion
-
-        /// <summary>
-        /// Gets the name of the event log.
-        /// </summary>
-        public string Name => eventLog.LogDisplayName;
-
-        #region IDisposable Support
-
-        /// <summary>Releases the unmanaged resources used by this instance and optionally releases the managed resources.</summary>
-        /// <param name="disposing">true to release both managed and unmanaged resources; false to release only unmanaged resources.</param>
-        protected override void Dispose(bool disposing)
-        {
-            base.Dispose(disposing);
-            if (disposing)
-            {
-                if (eventLog != null)
+                if (Monitor.TryEnter(writeLock))
                 {
-                    eventLog?.Close();
-                    eventLog = null;
+                    Task.Factory.StartNew(() =>
+                    {
+                        //void FlushTask()
+                        lock (writeLock)
+                        {
+                            Thread.Sleep(1000);
+                            Monitor.Exit(writeLock);
+                            eventLog.Flush();
+                        }
+                    });
                 }
             }
         }
 
-        #endregion
+        #endregion Public Methods
     }
+
+    #endregion Private Classes
+
+    #region Private Fields
+
+    EventLog eventLog = null;
+
+    LogLevel logLevel = LogLevel.Information;
+
+    #endregion Private Fields
+
+    #region Private Methods
+
+    void Init()
+    {
+        try
+        {
+            if (!EventLog.SourceExists(ProcessName))
+            {
+                EventLog.CreateEventSource(ProcessName, LogName);
+            }
+            if (!EventLog.SourceExists(ProcessName))
+            {
+                throw new NotSupportedException(string.Format("Due to a bug in the event log system you need to restart this program once (newly created event source is not reported back to the creating process until process recreation)!"));
+            }
+        }
+        catch (SecurityException ex)
+        {
+            throw new SecurityException(string.Format("The event source {0} does not exist and the current user has no right to create it!", ProcessName), ex);
+        }
+        eventLog = new EventLog(LogName, ".", ProcessName);
+        Writer = new LogEventLogWriter(this);
+    }
+
+    #endregion Private Methods
+
+    #region Public Fields
+
+    /// <summary>Retrieves the target event log name.</summary>
+    public readonly string LogName;
+
+    /// <summary>Retrieves the process name of the process generating the messages (defaults to the program name).</summary>
+    public readonly string ProcessName;
+
+    #endregion Public Fields
+
+    #region Public Constructors
+
+    /// <summary>Initializes a new instance of the <see cref="LogEventLog"/> class, with the default process name and at the default log: "Application:ProcessName".</summary>
+    public LogEventLog()
+    {
+        if (!Platform.IsMicrosoft)
+        {
+            throw new InvalidOperationException("Do not use LogEventLog on non Microsoft Platforms!");
+        }
+
+        ProcessName = Process.GetCurrentProcess().ProcessName;
+        LogName = "Application";
+        Init();
+        Name = eventLog.LogDisplayName;
+    }
+
+    /// <summary>Initializes a new instance of the <see cref="LogEventLog"/> class.</summary>
+    /// <param name="eventLog">The event log.</param>
+    public LogEventLog(EventLog eventLog)
+    {
+        this.eventLog = eventLog ?? throw new ArgumentNullException("eventLog");
+        ProcessName = Process.GetCurrentProcess().ProcessName;
+        LogName = this.eventLog.Log;
+        Init();
+        Name = eventLog.LogDisplayName;
+    }
+
+    /// <summary>Initializes a new instance of the <see cref="LogEventLog"/> class.</summary>
+    /// <param name="eventLog">The event log.</param>
+    /// <param name="processName">The process name.</param>
+    public LogEventLog(EventLog eventLog, string processName)
+    {
+        this.eventLog = eventLog ?? throw new ArgumentNullException("eventLog");
+        LogName = this.eventLog.Log;
+        ProcessName = processName;
+        Init();
+        Name = eventLog.LogDisplayName;
+    }
+
+    #endregion Public Constructors
+
+    #region ILogReceiver Member
+
+    readonly StringBuilder currentMessage = new StringBuilder();
+    EventLogEntryType currentType = EventLogEntryType.Information;
+
+    void Flush()
+    {
+        lock (currentMessage)
+        {
+            if (currentMessage.Length > 0)
+            {
+                eventLog.WriteEntry(currentMessage.ToString(), currentType);
+                currentMessage.Length = 0;
+            }
+        }
+    }
+
+    /// <summary>Closes the <see cref="LogReceiver"/>.</summary>
+    public override void Close()
+    {
+        Flush();
+        base.Close();
+    }
+
+    #endregion ILogReceiver Member
+
+    #region IDisposable Support
+
+    /// <summary>Releases the unmanaged resources used by this instance and optionally releases the managed resources.</summary>
+    /// <param name="disposing">true to release both managed and unmanaged resources; false to release only unmanaged resources.</param>
+    protected override void Dispose(bool disposing)
+    {
+        base.Dispose(disposing);
+        if (disposing)
+        {
+            if (eventLog != null)
+            {
+                eventLog?.Close();
+                eventLog = null;
+            }
+        }
+    }
+
+    #endregion IDisposable Support
 }

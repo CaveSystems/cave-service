@@ -1,6 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>net20;net35;net40;net45;net5.0</TargetFrameworks>
+        <TargetFrameworks>
+            net20;net35;
+            net40;
+            net45;net451;net452;
+            net46;net461;net462;
+            net47;net471;net472;
+            net48;net481;
+            net6.0;net7.0;net8.0
+        </TargetFrameworks>
         <!--project-->
         <RootNamespace>Cave.Service</RootNamespace>
         <AssemblyOriginatorKeyFile>Cave.Service.snk</AssemblyOriginatorKeyFile>
@@ -16,39 +24,52 @@
     </PropertyGroup>
 
     <!-- framework includes -->
-    <ItemGroup Condition="'$(TargetFramework)'=='net40' OR '$(TargetFramework)'=='net45'">
-        <Reference Include="System" />
-        <Reference Include="System.Core" />
-        <Reference Include="Microsoft.CSharp" />
-        <Reference Include="System.Data" />
-        <Reference Include="System.ServiceProcess" />
-        <Reference Include="System.Management" />
-        <Reference Include="System.Configuration.Install" />
-        <Reference Include="System.Windows.Forms" />
-    </ItemGroup>
-    <ItemGroup Condition="'$(TargetFramework)'=='net20' OR '$(TargetFramework)'=='net35'">
-        <Reference Include="System" />
-        <Reference Include="System.Data" />
-        <Reference Include="System.ServiceProcess" />
-        <Reference Include="System.Management" />
-        <Reference Include="System.Web" />
-        <Reference Include="System.Configuration.Install" />
-        <Reference Include="System.Windows.Forms" />
-    </ItemGroup>
-    <ItemGroup Condition="'$(TargetFramework)'=='net5.0'">
-        <PackageReference Include="Microsoft.Extensions.Logging.EventLog" Version="6.0.0" />
-        <PackageReference Include="System.ServiceProcess.ServiceController" Version="6.0.0" />
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    </ItemGroup>
+    <Choose>
+        <When Condition=" '$(TargetFramework)'=='net20' OR '$(TargetFramework)'=='net35' ">
+            <ItemGroup>
+                <Reference Include="System" />
+                <Reference Include="System.Data" />
+                <Reference Include="System.ServiceProcess" />
+                <Reference Include="System.Management" />
+                <Reference Include="System.Web" />
+                <Reference Include="System.Configuration.Install" />
+                <Reference Include="System.Windows.Forms" />
+            </ItemGroup>
+        </When>
+
+        <When Condition=" $(TargetFramework.StartsWith('net4')) ">
+            <ItemGroup>
+                <Reference Include="System" />
+                <Reference Include="System.Core" />
+                <Reference Include="Microsoft.CSharp" />
+                <Reference Include="System.Data" />
+                <Reference Include="System.ServiceProcess" />
+                <Reference Include="System.Management" />
+                <Reference Include="System.Configuration.Install" />
+                <Reference Include="System.Windows.Forms" />
+            </ItemGroup>
+        </When>
+
+        <Otherwise>
+            <!-- > net 5.0 -->
+            <ItemGroup>
+                <PackageReference Include="Microsoft.Extensions.Logging.EventLog" Version="8.0.0" />
+                <PackageReference Include="System.ServiceProcess.ServiceController" Version="8.0.0" />
+                <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+            </ItemGroup>
+        </Otherwise>
+    </Choose>
+
     <!-- nuget packages -->
     <ItemGroup>
-        <PackageReference Include="Cave.Console" Version="2.1.0" />
-        <PackageReference Include="Cave.Extensions" Version="2.1.4" />
-        <PackageReference Include="Cave.IO" Version="2.1.4" />
-        <PackageReference Include="Cave.Logging" Version="2.1.0" />
-        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
+        <PackageReference Include="Cave.Console" Version="3.0.0" />
+        <PackageReference Include="Cave.Extensions" Version="3.0.9" />
+        <PackageReference Include="Cave.IO" Version="3.0.5" />
+        <PackageReference Include="Cave.Logging" Version="3.0.3" />
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
     </ItemGroup>
+
 </Project>
