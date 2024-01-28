@@ -1,5 +1,3 @@
-#if !(NET35 || NET20)
-
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -15,7 +13,7 @@ namespace Cave.Service;
 
 /// <summary>Provides a service definiton providing deamon commandline functionality on linux and windows service functionality on windows.</summary>
 [DesignerCategory("Code")]
-public abstract class ServiceProgram : System.ServiceProcess.ServiceBase
+public class ServiceProgram : System.ServiceProcess.ServiceBase
 {
     #region Private Fields
 
@@ -79,7 +77,9 @@ public abstract class ServiceProgram : System.ServiceProcess.ServiceBase
 
     #region Public Constructors
 
-    /// <summary>Initializes a new instance of the <see cref="ServiceProgram"/> class.</summary>
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ServiceProgram"/> class. Use this constructor in inherited classes when overriding the Worker() proc.
+    /// </summary>
     public ServiceProgram()
         : base()
     {
@@ -90,7 +90,14 @@ public abstract class ServiceProgram : System.ServiceProcess.ServiceBase
         VersionInfo = AssemblyVersionInfo.FromAssembly(type.Assembly);
 
         ServiceName = StringExtensions.ReplaceInvalidChars(VersionInfo.Product, ASCII.Strings.Letters + ASCII.Strings.Digits + "_", "_");
+        ServiceWorker = (p) => p.WaitForShutdown();
     }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ServiceProgram"/> class. Use this constructor if you do not want to inherit this class but use it with a
+    /// specified worker action.
+    /// </summary>
+    public ServiceProgram(Action<ServiceParameters> worker) : this() => ServiceWorker = worker;
 
     #endregion Public Constructors
 
@@ -124,12 +131,15 @@ public abstract class ServiceProgram : System.ServiceProcess.ServiceBase
     /// <value>The service parameters.</value>
     public ServiceParameters ServiceParameters { get; private set; }
 
+    /// <summary>Gets or sets the action to be called when the service is started</summary>
+    public Action<ServiceParameters> ServiceWorker { get; set; }
+
     #endregion Public Properties
 
     #region abstract worker definition
 
     /// <summary>Worker function to be implemented by the real program.</summary>
-    protected abstract void Worker();
+    protected virtual void Worker() => ServiceWorker(ServiceParameters);
 
     #endregion abstract worker definition
 
@@ -500,13 +510,8 @@ public abstract class ServiceProgram : System.ServiceProcess.ServiceBase
 
     #region public properties
 
-    /// <summary>Gets the string "Service" + product version info.</summary>
-    public virtual string LogSourceName => "Service " + VersionInfo.Product;
-
     /// <summary>Gets the <see cref="AssemblyVersionInfo"/> of the service.</summary>
     public AssemblyVersionInfo VersionInfo { get; private set; }
 
     #endregion public properties
 }
-
-#endif
