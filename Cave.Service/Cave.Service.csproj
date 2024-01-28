@@ -63,9 +63,9 @@
     <!-- nuget packages -->
     <ItemGroup>
         <PackageReference Include="Cave.Console" Version="3.0.0" />
-        <PackageReference Include="Cave.Extensions" Version="3.0.9" />
+        <PackageReference Include="Cave.Extensions" Version="3.0.10" />
         <PackageReference Include="Cave.IO" Version="3.0.5" />
-        <PackageReference Include="Cave.Logging" Version="3.0.3" />
+        <PackageReference Include="Cave.Logging" Version="3.0.4" />
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

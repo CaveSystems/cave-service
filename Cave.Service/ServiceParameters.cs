@@ -41,10 +41,6 @@ public sealed class ServiceParameters
     /// <summary>Gets a value indicating whether the user hat admin rights or not.</summary>
     public bool HasAdminRights { get; private set; }
 
-    /// <summary>Gets the name of the log source.</summary>
-    /// <value>The name of the log source.</value>
-    public string LogSourceName => "ServiceParameters";
-
     /// <summary>Gets a value indicating whether the service shall shutdown (leave the worker function).</summary>
     public bool Shutdown { get; private set; }
 
