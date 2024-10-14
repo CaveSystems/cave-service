@@ -21,6 +21,9 @@ public sealed class ServiceParameters
     #region Internal Constructors
 
     /// <summary>Initializes a new instance of the <see cref="ServiceParameters"/> class.</summary>
+    internal ServiceParameters() : this(false, false, false) { }
+
+    /// <summary>Initializes a new instance of the <see cref="ServiceParameters"/> class.</summary>
     /// <param name="hasAdminRights">User has admin rights.</param>
     /// <param name="cmdLineMode">Service runs in command line mode.</param>
     /// <param name="userInteractive">Service runs in interactive shell.</param>
@@ -55,7 +58,7 @@ public sealed class ServiceParameters
     /// <summary>Initiates the shutdown.</summary>
     public void CommitShutdown()
     {
-        log.Info("Shutdown initiated.");
+        log.Info($"Shutdown initiated.");
         Shutdown = true;
         lock (this)
         {

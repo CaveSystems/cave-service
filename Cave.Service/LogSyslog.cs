@@ -9,7 +9,7 @@ public sealed class LogSyslog : LogReceiver
 {
     #region Private Fields
 
-    static LogSyslog instance;
+    static LogSyslog? instance;
     static object syncRoot = new object();
 
     #endregion Private Fields
@@ -70,7 +70,8 @@ public sealed class LogSyslog : LogReceiver
     public override void Write(LogMessage message)
     {
         var severity = (SyslogSeverity)Math.Min((int)message.Level, (int)SyslogSeverity.Debug);
-        Syslog.Write(severity, Facility, message.Content.ToString(null, CultureInfo));
+        var content = message.Content?.ToString(null, CultureInfo);
+        if (content is not null) Syslog.Write(severity, Facility, content);
     }
 
     #endregion Public Methods

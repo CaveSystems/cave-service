@@ -20,7 +20,7 @@ public class InstallerLogHandler
 
     #region Public Events
 
-    public event EventHandler<string> OnLog;
+    public event EventHandler<string>? OnLog;
 
     #endregion Public Events
 

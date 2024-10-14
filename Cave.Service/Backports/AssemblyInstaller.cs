@@ -1,6 +1,7 @@
 ﻿#if NET5_0_OR_GREATER
 
 #pragma warning disable CS1591
+#nullable disable
 
 using System.Collections;
 using System.ComponentModel;
@@ -30,8 +31,11 @@ public class AssemblyInstaller : Installer
             var types = module.GetTypes();
             for (var index = 0; index < types.Length; ++index)
             {
-                if (typeof(Installer).IsAssignableFrom(types[index]) && !types[index].IsAbstract && types[index].IsPublic && ((RunInstallerAttribute)TypeDescriptor.GetAttributes(types[index])[typeof(RunInstallerAttribute)]).RunInstaller)
+                if (typeof(Installer).IsAssignableFrom(types[index]) && !types[index].IsAbstract && types[index].IsPublic &&
+                    ((RunInstallerAttribute)TypeDescriptor.GetAttributes(types[index])[typeof(RunInstallerAttribute)]).RunInstaller)
+                {
                     arrayList.Add(types[index]);
+                }
             }
         }
         return (Type[])arrayList.ToArray(typeof(Type));

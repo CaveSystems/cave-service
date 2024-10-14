@@ -3,11 +3,7 @@
         <TargetFrameworks>
             net20;net35;
             net40;
-            net45;net451;net452;
-            net46;net461;net462;
-            net47;net471;net472;
-            net48;net481;
-            net5.0;net6.0;net7.0;net8.0;
+            net45;net46;net47;net48;net6.0;net8.0;
         </TargetFrameworks>
         <!--project-->
         <RootNamespace>Cave.Service</RootNamespace>
@@ -53,8 +49,8 @@
         <Otherwise>
             <!-- > net 5.0 -->
             <ItemGroup>
-                <PackageReference Include="Microsoft.Extensions.Logging.EventLog" Version="8.0.0" />
-                <PackageReference Include="System.ServiceProcess.ServiceController" Version="8.0.0" />
+                <PackageReference Include="Microsoft.Extensions.Logging.EventLog" Version="8.0.1" />
+                <PackageReference Include="System.ServiceProcess.ServiceController" Version="8.0.1" />
                 <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
             </ItemGroup>
         </Otherwise>
@@ -62,10 +58,10 @@
 
     <!-- nuget packages -->
     <ItemGroup>
-        <PackageReference Include="Cave.Console" Version="3.0.0" />
-        <PackageReference Include="Cave.Extensions" Version="3.0.10" />
-        <PackageReference Include="Cave.IO" Version="3.0.5" />
-        <PackageReference Include="Cave.Logging" Version="3.0.4" />
+        <PackageReference Include="Cave.Console" Version="4.0.0" />
+        <PackageReference Include="Cave.Extensions" Version="4.0.1" />
+        <PackageReference Include="Cave.IO" Version="4.0.1" />
+        <PackageReference Include="Cave.Logging" Version="4.0.1" />
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
