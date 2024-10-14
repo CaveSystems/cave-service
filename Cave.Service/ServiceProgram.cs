@@ -18,212 +18,12 @@ public class ServiceProgram : System.ServiceProcess.ServiceBase
     #region Private Fields
 
     Logger log = new Logger("Service");
+    DateTime onKeyPressedEscape;
+    Task? task;
 
     #endregion Private Fields
 
     #region Private Methods
-
-    void Init()
-    {
-        if (Platform.IsMicrosoft)
-        {
-            HasAdminRights = new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);
-        }
-
-        IsWindowsService = Platform.IsMicrosoft && !Environment.UserInteractive;
-        if (IsWindowsService)
-        {
-            // no log console + service run
-            if (!HasAdminRights)
-            {
-                throw new NotSupportedException("Service requires administration rights!");
-            }
-
-            LogSystem = new LogEventLog(EventLog, ServiceName);
-        }
-        else
-        {
-            CommandlineArguments = Arguments.FromEnvironment();
-
-            // commandline run or linux daemon ?
-            if (!CommandlineArguments.IsOptionPresent("daemon"))
-            {
-                // no daemon -> log console
-                LogConsole = LogConsole.StartNew();
-                LogConsole.Title = ServiceName + " v" + VersionInfo.InformalVersion;
-                if (CommandlineArguments.IsOptionPresent("debug"))
-                {
-                    LogConsole.Level = LogLevel.Debug;
-                }
-
-                if (CommandlineArguments.IsOptionPresent("verbose"))
-                {
-                    LogConsole.Level = LogLevel.Verbose;
-                }
-            }
-
-            // on unix do syslog
-            LogSystem = LogConsole;
-            if (Platform.Type == PlatformType.Linux)
-            {
-                LogSystem = LogSyslog.Create();
-            }
-        }
-
-        log.Info($"Service <cyan>{ServiceName}<default> initialized!");
-    }
-
-    #endregion Private Methods
-
-    #region Public Constructors
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ServiceProgram"/> class. Use this constructor in inherited classes when overriding the Worker() proc.
-    /// </summary>
-    public ServiceProgram()
-        : base()
-    {
-        log.Info("Initializing Service instance.");
-        AppDomain.CurrentDomain.UnhandledException += UnhandledException;
-
-        var type = GetType();
-        VersionInfo = AssemblyVersionInfo.FromAssembly(type.Assembly);
-
-        ServiceName = StringExtensions.ReplaceInvalidChars(VersionInfo.Product, ASCII.Strings.Letters + ASCII.Strings.Digits + "_", "_");
-        ServiceWorker = (p) => p.WaitForShutdown();
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ServiceProgram"/> class. Use this constructor if you do not want to inherit this class but use it with a
-    /// specified worker action.
-    /// </summary>
-    public ServiceProgram(Action<ServiceParameters> worker) : this() => ServiceWorker = worker;
-
-    #endregion Public Constructors
-
-    #region Public Properties
-
-    /// <summary>Gets the commandline arguments if <see cref="ServiceParameters.CommandLineMode"/> == true.</summary>
-    /// <value>The commandline arguments or <c>null</c>.</value>
-    public Arguments CommandlineArguments { get; private set; }
-
-    /// <summary>Gets a value indicating whether this instance has admin rights.</summary>
-    /// <value><c>true</c> if this instance has admin rights; otherwise, <c>false</c>.</value>
-    public bool HasAdminRights { get; private set; }
-
-    /// <summary>Gets a value indicating whether this instance is windows service.</summary>
-    /// <value><c>true</c> if this instance is a windows service; otherwise, <c>false</c>.</value>
-    public bool IsWindowsService { get; private set; }
-
-    /// <summary>Gets the log console used. This may be null.</summary>
-    /// <value>The log console or null.</value>
-    public LogConsole LogConsole { get; private set; }
-
-    /// <summary>Gets or sets the log file used. This may be null.</summary>
-    /// <value>The log file or null.</value>
-    public LogFile LogFile { get; protected set; }
-
-    /// <summary>Gets the log system used. This may be null.</summary>
-    /// <value>The log system or null.</value>
-    public LogReceiver LogSystem { get; private set; }
-
-    /// <summary>Gets the service parameters.</summary>
-    /// <value>The service parameters.</value>
-    public ServiceParameters ServiceParameters { get; private set; }
-
-    /// <summary>Gets or sets the action to be called when the service is started</summary>
-    public Action<ServiceParameters> ServiceWorker { get; set; }
-
-    #endregion Public Properties
-
-    #region abstract worker definition
-
-    /// <summary>Worker function to be implemented by the real program.</summary>
-    protected virtual void Worker() => ServiceWorker(ServiceParameters);
-
-    #endregion abstract worker definition
-
-    #region protected implementation
-
-    /// <summary>Gets or sets the timespan within the user has to press 'escape' twice to shutdown the commandline version of the program.</summary>
-    protected TimeSpan OnKeyPressedEscapeShutdownTimeSpan { get; set; } = TimeSpan.FromMilliseconds(500);
-
-    /// <summary>Called when [key pressed].</summary>
-    /// <param name="keyInfo">The key information.</param>
-    protected internal virtual void OnKeyPressed(ConsoleKeyInfo keyInfo)
-    {
-        if (keyInfo.Key == ConsoleKey.Escape)
-        {
-            var now = DateTime.Now;
-            var time = now - onKeyPressedEscape;
-            onKeyPressedEscape = now;
-            if (time > TimeSpan.Zero && time < OnKeyPressedEscapeShutdownTimeSpan)
-            {
-                ServiceParameters.CommitShutdown();
-            }
-            else
-            {
-                log.Info($"Press escape within <cyan>{OnKeyPressedEscapeShutdownTimeSpan.FormatTime()}<default> to perform shutdown.");
-            }
-        }
-    }
-
-    #endregion protected implementation
-
-    #region private implementation
-
-    DateTime onKeyPressedEscape;
-    Task task;
-
-    #region application domain unhandled error logging
-
-    void UnhandledException(object sender, UnhandledExceptionEventArgs e)
-    {
-        var ex = e.ExceptionObject as Exception;
-        var msg = "Unhandled exception!";
-        if (e.IsTerminating)
-        {
-            msg += " Runtime terminating!";
-        }
-        log.Emergency(msg, ex);
-    }
-
-    #endregion application domain unhandled error logging
-
-    /// <summary>Runs the worker. Used by Service and CommandLine.</summary>
-    /// <exception cref="System.InvalidOperationException">Throws if another instance is alreaqdy running.</exception>
-    void RunWorker()
-    {
-        log.Debug("Enter Service Mutex");
-
-        try
-        {
-            var mutex = new Mutex(true, ServiceName, out var singleInstance);
-            try
-            {
-                if (!singleInstance)
-                {
-                    var msg = string.Format("Another instance of {0} is already running on this machine!", ServiceName);
-                    log.Error(msg);
-                    throw new InvalidOperationException(msg);
-                }
-                Worker();
-            }
-            finally
-            {
-                mutex.Close();
-                GC.KeepAlive(mutex);
-            }
-        }
-        catch (Exception ex)
-        {
-            log.Emergency("<red>Error: <default>A fatal unhandled exception was encountered at the main service worker. See logging for details.", ex);
-        }
-        log.Debug("Exit Service Mutex");
-        Logger.Flush();
-    }
-
-    #region command line functions
 
     /// <summary>Does a commandline run.</summary>
     void CommandLineRun()
@@ -250,7 +50,7 @@ public class ServiceProgram : System.ServiceProcess.ServiceBase
                     throw new InvalidOperationException("Please debug this program in administration mode!");
                 }
 
-                log.Notice("Restarting service with administration rights!");
+                log.Notice($"Restarting service with administration rights!");
                 Logger.Close();
                 var processStartInfo = new ProcessStartInfo(CommandlineArguments.Command, CommandlineArguments.ToString(false) + " --wait")
                 {
@@ -262,11 +62,11 @@ public class ServiceProgram : System.ServiceProcess.ServiceBase
             }
             if (HasAdminRights)
             {
-                log.Info("Current user has <green>admin<default> rights.");
+                log.Info($"Current user has <green>admin<default> rights.");
             }
             else
             {
-                log.Info("Running in <red>debug<default> mode <red>without admin<default> rights.");
+                log.Info($"Running in <red>debug<default> mode <red>without admin<default> rights.");
             }
         }
 
@@ -276,7 +76,7 @@ public class ServiceProgram : System.ServiceProcess.ServiceBase
         if (Debugger.IsAttached)
         {
             runCommandLine = true;
-            log.Info("<red>Debugger<default> attached.");
+            log.Info($"<red>Debugger<default> attached.");
         }
         else
         {
@@ -308,7 +108,7 @@ public class ServiceProgram : System.ServiceProcess.ServiceBase
                         }
                         else
                         {
-                            log.Error("Ignore <red>start<default> service command, doing commandline run!");
+                            log.Error($"Ignore <red>start<default> service command, doing commandline run!");
                         }
 
                         break;
@@ -320,7 +120,7 @@ public class ServiceProgram : System.ServiceProcess.ServiceBase
                         }
                         else
                         {
-                            log.Error("Ignore <red>stop<default> service command, doing commandline run!");
+                            log.Error($"Ignore <red>stop<default> service command, doing commandline run!");
                         }
 
                         break;
@@ -332,7 +132,7 @@ public class ServiceProgram : System.ServiceProcess.ServiceBase
                         }
                         else
                         {
-                            log.Error("Ignore <red>install<default> service command, doing commandline run!");
+                            log.Error($"Ignore <red>install<default> service command, doing commandline run!");
                         }
 
                         break;
@@ -344,7 +144,7 @@ public class ServiceProgram : System.ServiceProcess.ServiceBase
                         }
                         else
                         {
-                            log.Error("Ignore <red>uninstall<default> service command, doing commandline run!");
+                            log.Error($"Ignore <red>uninstall<default> service command, doing commandline run!");
                         }
 
                         break;
@@ -366,7 +166,7 @@ public class ServiceProgram : System.ServiceProcess.ServiceBase
             }
             catch (Exception ex)
             {
-                log.Error("Error while running service executable in commandline mode.", ex);
+                log.Error($"Error while running service executable in commandline mode.", ex);
             }
 
             // --- exit
@@ -387,12 +187,115 @@ public class ServiceProgram : System.ServiceProcess.ServiceBase
         }
     }
 
+    void Init()
+    {
+        if (Platform.IsMicrosoft)
+        {
+            HasAdminRights = new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);
+        }
+
+        IsWindowsService = Platform.IsMicrosoft && !Environment.UserInteractive;
+        if (IsWindowsService)
+        {
+            // no log console + service run
+            if (!HasAdminRights)
+            {
+                throw new NotSupportedException("Service requires administration rights!");
+            }
+
+            LogSystem = new LogEventLog(EventLog, ServiceName);
+        }
+        else
+        {
+            // commandline run or linux daemon ?
+            if (!CommandlineArguments.IsOptionPresent("daemon"))
+            {
+                // no daemon -> log console
+                LogConsole = LogConsole.StartNew();
+                LogConsole.Title = ServiceName + " v" + VersionInfo.InformalVersion;
+                if (CommandlineArguments.IsOptionPresent("debug"))
+                {
+                    LogConsole.Level = LogLevel.Debug;
+                }
+
+                if (CommandlineArguments.IsOptionPresent("verbose"))
+                {
+                    LogConsole.Level = LogLevel.Verbose;
+                }
+            }
+
+            // on unix do syslog
+            LogSystem = LogConsole;
+            if (Platform.Type == PlatformType.Linux)
+            {
+                LogSystem = LogSyslog.Create();
+            }
+        }
+
+        log.Info($"Service <cyan>{ServiceName}<default> initialized!");
+    }
+
+    /// <summary>Runs the worker. Used by Service and CommandLine.</summary>
+    /// <exception cref="System.InvalidOperationException">Throws if another instance is alreaqdy running.</exception>
+    void RunWorker()
+    {
+        log.Debug($"Enter Service Mutex");
+
+        try
+        {
+            var mutex = new Mutex(true, ServiceName, out var singleInstance);
+            try
+            {
+                if (!singleInstance)
+                {
+                    log.Error($"Another instance of {ServiceName} is already running on this machine!");
+                    throw new InvalidOperationException($"Another instance of {ServiceName} is already running on this machine!");
+                }
+                Worker();
+            }
+            finally
+            {
+                mutex.Close();
+                GC.KeepAlive(mutex);
+            }
+        }
+        catch (Exception ex)
+        {
+            log.Emergency($"<red>Error: <default>A fatal unhandled exception was encountered at the main service worker. See logging for details.", ex);
+        }
+        log.Debug($"Exit Service Mutex");
+        Logger.Flush();
+    }
+
+    void UnhandledException(object sender, UnhandledExceptionEventArgs e)
+    {
+        var ex = e.ExceptionObject as Exception;
+        log.Emergency($"Unhandled exception!", ex);
+        if (e.IsTerminating)
+        {
+            log.Emergency($"Runtime is terminating!");
+        }
+    }
+
+    #endregion Private Methods
+
+    #region Protected Properties
+
+    /// <summary>Gets or sets the timespan within the user has to press 'escape' twice to shutdown the commandline version of the program.</summary>
+    protected TimeSpan OnKeyPressedEscapeShutdownTimeSpan { get; set; } = TimeSpan.FromMilliseconds(500);
+
+    #endregion Protected Properties
+
+    #region Protected Methods
+
     /// <summary>Shows the help for this instance in commandline mode.</summary>
     protected virtual void Help()
     {
-        log.Info("Invalid commandline option used.\n" +
+        var programName = Path.GetFileNameWithoutExtension(FileSystem.ProgramFileName);
+        log.Log(LogLevel.Information,
+            "Invalid commandline option used.\n" +
             "\n" +
-            "Usage: " + Path.GetFileNameWithoutExtension(FileSystem.ProgramFileName) + " [option]\n" +
+            $"Usage: {programName} [option]\n" +
             "\n" +
             "Options:\n" +
             "--install  \tinstall service\n" +
@@ -403,12 +306,6 @@ public class ServiceProgram : System.ServiceProcess.ServiceBase
             "--verbose  \tcommandline run with verbose logging\n" +
             "--run      \tcommandline run");
     }
-
-    #endregion command line functions
-
-    #endregion private implementation
-
-    #region protected overrides
 
     /// <summary>Handles the service start event creating a background thread calling the <see cref="RunWorker"/> function.</summary>
     /// <param name="args">The arguments.</param>
@@ -451,13 +348,105 @@ public class ServiceProgram : System.ServiceProcess.ServiceBase
             task.Wait();
             task = null;
         }
-        ServiceParameters = null;
         log.Info($"Service <cyan>{ServiceName}<default> stopped.");
     }
 
-    #endregion protected overrides
+    /// <summary>Worker function to be implemented by the real program.</summary>
+    protected virtual void Worker() => ServiceWorker(ServiceParameters);
 
-    #region public Run() function
+    #endregion Protected Methods
+
+    #region Protected Internal Methods
+
+    /// <summary>Called when [key pressed].</summary>
+    /// <param name="keyInfo">The key information.</param>
+    protected internal virtual void OnKeyPressed(ConsoleKeyInfo keyInfo)
+    {
+        if (keyInfo.Key == ConsoleKey.Escape)
+        {
+            var now = DateTime.Now;
+            var time = now - onKeyPressedEscape;
+            onKeyPressedEscape = now;
+            if (time > TimeSpan.Zero && time < OnKeyPressedEscapeShutdownTimeSpan)
+            {
+                ServiceParameters.CommitShutdown();
+            }
+            else
+            {
+                log.Info($"Press escape within <cyan>{OnKeyPressedEscapeShutdownTimeSpan.FormatTime()}<default> to perform shutdown.");
+            }
+        }
+    }
+
+    #endregion Protected Internal Methods
+
+    #region Public Constructors
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ServiceProgram"/> class. Use this constructor in inherited classes when overriding the Worker() proc.
+    /// </summary>
+    public ServiceProgram()
+        : base()
+    {
+        CommandlineArguments = Arguments.FromEnvironment();
+
+        log.Info($"Initializing Service instance.");
+        AppDomain.CurrentDomain.UnhandledException += UnhandledException;
+
+        var type = GetType();
+        VersionInfo = AssemblyVersionInfo.FromAssembly(type.Assembly);
+
+        ServiceName = StringExtensions.ReplaceInvalidChars(VersionInfo.Product, ASCII.Strings.Letters + ASCII.Strings.Digits + "_", "_");
+        ServiceWorker = (p) => p.WaitForShutdown();
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ServiceProgram"/> class. Use this constructor if you do not want to inherit this class but use it with a
+    /// specified worker action.
+    /// </summary>
+    public ServiceProgram(Action<ServiceParameters> worker) : this() => ServiceWorker = worker;
+
+    #endregion Public Constructors
+
+    #region Public Properties
+
+    /// <summary>Gets the commandline arguments if <see cref="ServiceParameters.CommandLineMode"/> == true.</summary>
+    /// <value>The commandline arguments or <c>null</c>.</value>
+    public Arguments CommandlineArguments { get; init; }
+
+    /// <summary>Gets a value indicating whether this instance has admin rights.</summary>
+    /// <value><c>true</c> if this instance has admin rights; otherwise, <c>false</c>.</value>
+    public bool HasAdminRights { get; private set; }
+
+    /// <summary>Gets a value indicating whether this instance is windows service.</summary>
+    /// <value><c>true</c> if this instance is a windows service; otherwise, <c>false</c>.</value>
+    public bool IsWindowsService { get; private set; }
+
+    /// <summary>Gets the log console used. This may be null.</summary>
+    /// <value>The log console or null.</value>
+    public LogConsole? LogConsole { get; private set; }
+
+    /// <summary>Gets or sets the log file used. This may be null.</summary>
+    /// <value>The log file or null.</value>
+    public LogFile? LogFile { get; protected set; }
+
+    /// <summary>Gets the log system used. This may be null.</summary>
+    /// <value>The log system or null.</value>
+    public LogReceiver? LogSystem { get; private set; }
+
+    /// <summary>Gets the service parameters.</summary>
+    /// <value>The service parameters.</value>
+    public ServiceParameters ServiceParameters { get; private set; } = new();
+
+    /// <summary>Gets or sets the action to be called when the service is started</summary>
+    public Action<ServiceParameters> ServiceWorker { get; set; }
+
+    /// <summary>Gets the <see cref="AssemblyVersionInfo"/> of the service.</summary>
+    public AssemblyVersionInfo VersionInfo { get; private set; }
+
+    #endregion Public Properties
+
+    #region Public Methods
 
     /// <summary>
     /// Starts the service as service process or user interactive commandline program. In user interactive mode a logconsole is created to receive messages. In
@@ -484,7 +473,7 @@ public class ServiceProgram : System.ServiceProcess.ServiceBase
         }
         catch (Exception ex)
         {
-            log.Emergency("Unhandled exception:", ex);
+            log.Emergency($"Unhandled exception", ex);
         }
         finally
         {
@@ -506,12 +495,5 @@ public class ServiceProgram : System.ServiceProcess.ServiceBase
         }
     }
 
-    #endregion public Run() function
-
-    #region public properties
-
-    /// <summary>Gets the <see cref="AssemblyVersionInfo"/> of the service.</summary>
-    public AssemblyVersionInfo VersionInfo { get; private set; }
-
-    #endregion public properties
+    #endregion Public Methods
 }

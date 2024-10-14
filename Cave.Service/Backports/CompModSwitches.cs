@@ -1,5 +1,7 @@
 ﻿#if NET5_0_OR_GREATER
 
+#nullable disable
+
 using System.Diagnostics;
 
 namespace System.Configuration.Install;
