@@ -1,4 +1,7 @@
-﻿using Cave.Service;
+﻿using System.Threading;
+using Cave.Logging;
+using Cave.Security;
+using Cave.Service;
 
 class Program : ServiceProgram
 {
@@ -9,10 +12,23 @@ class Program : ServiceProgram
         new Program().Run();
     }
 
+    #endregion Private Methods
+
+    #region Protected Methods
+
     protected override void Worker()
     {
-        ServiceParameters.WaitForShutdown();
+        Logger log = new();
+        while (!ServiceParameters.Shutdown)
+        {
+            Thread.Sleep(1000);
+            if (RNG.UInt32 % 5 == 0)
+            {
+                var level = (LogLevel)(RNG.UInt32 % ((int)LogLevel.Verbose + 1));
+                log.Log(level, $"Message of level {level}.");
+            }
+        }
     }
 
-    #endregion Private Methods
+    #endregion Protected Methods
 }

@@ -18,15 +18,44 @@ public sealed class LogEventLog : LogReceiver, IDisposable
     {
         #region Private Fields
 
-        readonly object writeLock = new();
+        readonly StringBuilder currentMessage = new StringBuilder();
+        readonly object writeLock = new object();
         bool closed = false;
-        LogEventLog eventLog;
+        EventLogEntryType currentType = EventLogEntryType.Information;
+        EventLog eventLog;
+        Task? flushTask;
 
         #endregion Private Fields
 
+        #region Private Methods
+
+        void FlushDelayed()
+        {
+            Thread.Sleep(1000);
+            FlushInternal();
+        }
+
+        void FlushInternal()
+        {
+            lock (currentMessage)
+            {
+                if (currentMessage.Length > 0)
+                {
+                    eventLog.WriteEntry(currentMessage.ToString(), currentType);
+                    currentMessage.Length = 0;
+                }
+                flushTask = null;
+            }
+        }
+
+        #endregion Private Methods
+
         #region Public Constructors
 
-        public LogEventLogWriter(LogEventLog eventLog) => this.eventLog = eventLog ?? throw new ArgumentNullException(nameof(eventLog));
+        public LogEventLogWriter(EventLog eventLog)
+        {
+            this.eventLog = eventLog ?? throw new ArgumentNullException(nameof(eventLog));
+        }
 
         #endregion Public Constructors
 
@@ -40,16 +69,13 @@ public sealed class LogEventLog : LogReceiver, IDisposable
 
         public void Close() => closed = true;
 
+        public void Flush() { }
+
         public void Write(LogMessage message, IEnumerable<ILogText> items)
         {
-            lock (eventLog.currentMessage)
+            lock (writeLock)
             {
                 if (eventLog == null)
-                {
-                    return;
-                }
-
-                if (message.Level > eventLog.logLevel)
                 {
                     return;
                 }
@@ -64,39 +90,29 @@ public sealed class LogEventLog : LogReceiver, IDisposable
                     type = EventLogEntryType.Error;
                 }
 
-                if (type != eventLog.currentType || eventLog.currentMessage.Length > 16384)
+                if (type != currentType || currentMessage.Length > 16384)
                 {
-                    eventLog.Flush();
+                    FlushInternal();
                 }
-                eventLog.currentType = type;
+                else
+                {
+                    flushTask ??= Task.Factory.StartNew(FlushDelayed);
+                }
+                currentType = type;
                 var lf = false;
                 foreach (var item in items)
                 {
                     if (item.Equals(LogText.NewLine))
                     {
-                        eventLog.currentMessage.AppendLine(item.Text);
+                        currentMessage.AppendLine(item.Text);
                         lf = true;
                     }
                     else
                     {
-                        eventLog.currentMessage.Append(item.Text);
+                        currentMessage.Append(item.Text);
                     }
                 }
-                if (!lf) eventLog.currentMessage?.AppendLine();
-
-                if (Monitor.TryEnter(writeLock))
-                {
-                    Task.Factory.StartNew(() =>
-                    {
-                        //void FlushTask()
-                        lock (writeLock)
-                        {
-                            Thread.Sleep(1000);
-                            Monitor.Exit(writeLock);
-                            eventLog.Flush();
-                        }
-                    });
-                }
+                if (!lf) currentMessage?.AppendLine();
             }
         }
 
@@ -107,15 +123,15 @@ public sealed class LogEventLog : LogReceiver, IDisposable
 
     #region Private Fields
 
-    EventLog eventLog = null;
-
+    readonly EventLog eventLog;
+    bool disposed;
     LogLevel logLevel = LogLevel.Information;
 
     #endregion Private Fields
 
     #region Private Methods
 
-    void Init()
+    EventLog InitEventLog()
     {
         try
         {
@@ -132,11 +148,29 @@ public sealed class LogEventLog : LogReceiver, IDisposable
         {
             throw new SecurityException(string.Format("The event source {0} does not exist and the current user has no right to create it!", ProcessName), ex);
         }
-        eventLog = new EventLog(LogName, ".", ProcessName);
-        Writer = new LogEventLogWriter(this);
+        return new EventLog(LogName, ".", ProcessName);
     }
 
     #endregion Private Methods
+
+    #region Protected Methods
+
+    /// <summary>Releases the unmanaged resources used by this instance and optionally releases the managed resources.</summary>
+    /// <param name="disposing">true to release both managed and unmanaged resources; false to release only unmanaged resources.</param>
+    protected override void Dispose(bool disposing)
+    {
+        base.Dispose(disposing);
+        if (disposing)
+        {
+            if (!disposed)
+            {
+                eventLog?.Close();
+            }
+            disposed = true;
+        }
+    }
+
+    #endregion Protected Methods
 
     #region Public Fields
 
@@ -160,7 +194,8 @@ public sealed class LogEventLog : LogReceiver, IDisposable
 
         ProcessName = Process.GetCurrentProcess().ProcessName;
         LogName = "Application";
-        Init();
+        eventLog = InitEventLog();
+        Writer = new LogEventLogWriter(eventLog);
         Name = eventLog.LogDisplayName;
     }
 
@@ -171,7 +206,7 @@ public sealed class LogEventLog : LogReceiver, IDisposable
         this.eventLog = eventLog ?? throw new ArgumentNullException("eventLog");
         ProcessName = Process.GetCurrentProcess().ProcessName;
         LogName = this.eventLog.Log;
-        Init();
+        Writer = new LogEventLogWriter(eventLog);
         Name = eventLog.LogDisplayName;
     }
 
@@ -183,28 +218,13 @@ public sealed class LogEventLog : LogReceiver, IDisposable
         this.eventLog = eventLog ?? throw new ArgumentNullException("eventLog");
         LogName = this.eventLog.Log;
         ProcessName = processName;
-        Init();
+        Writer = new LogEventLogWriter(eventLog);
         Name = eventLog.LogDisplayName;
     }
 
     #endregion Public Constructors
 
-    #region ILogReceiver Member
-
-    readonly StringBuilder currentMessage = new StringBuilder();
-    EventLogEntryType currentType = EventLogEntryType.Information;
-
-    void Flush()
-    {
-        lock (currentMessage)
-        {
-            if (currentMessage.Length > 0)
-            {
-                eventLog.WriteEntry(currentMessage.ToString(), currentType);
-                currentMessage.Length = 0;
-            }
-        }
-    }
+    #region Public Methods
 
     /// <summary>Closes the <see cref="LogReceiver"/>.</summary>
     public override void Close()
@@ -213,24 +233,5 @@ public sealed class LogEventLog : LogReceiver, IDisposable
         base.Close();
     }
 
-    #endregion ILogReceiver Member
-
-    #region IDisposable Support
-
-    /// <summary>Releases the unmanaged resources used by this instance and optionally releases the managed resources.</summary>
-    /// <param name="disposing">true to release both managed and unmanaged resources; false to release only unmanaged resources.</param>
-    protected override void Dispose(bool disposing)
-    {
-        base.Dispose(disposing);
-        if (disposing)
-        {
-            if (eventLog != null)
-            {
-                eventLog?.Close();
-                eventLog = null;
-            }
-        }
-    }
-
-    #endregion IDisposable Support
+    #endregion Public Methods
 }

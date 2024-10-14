@@ -32,12 +32,12 @@ public static class ServiceHelper
             {
                 var controller = Controller;
                 var result = controller != null;
-                controller.Dispose();
+                controller?.Dispose();
                 return result;
             }
             catch (Exception ex)
             {
-                log.Error("Error while checking service state:", ex);
+                log.Error($"Error while checking service state.", ex);
                 return false;
             }
         }
@@ -57,7 +57,7 @@ public static class ServiceHelper
             }
             catch (Exception ex)
             {
-                log.Error("Error while checking service state:\n", ex);
+                log.Error($"Error while checking service state", ex);
                 return false;
             }
         }
@@ -74,7 +74,7 @@ public static class ServiceHelper
     /// <returns>True if the service could be installed without errors.</returns>
     public static bool InstallService()
     {
-        log.Info("Installing service...");
+        log.Info($"Installing service...");
         using var installer = new AssemblyInstaller(FileSystem.ProgramFileName, new string[0]);
         IDictionary state = new Hashtable();
         installer.UseNewContext = true;
@@ -82,7 +82,7 @@ public static class ServiceHelper
         {
             installer.Install(state);
             installer.Commit(state);
-            log.Notice("Service installed successfully.");
+            log.Notice($"Service installed successfully.");
             return true;
         }
         catch (Exception ex)
@@ -94,7 +94,7 @@ public static class ServiceHelper
             catch
             {
             }
-            log.Error("Error while installing service:", ex);
+            log.Error($"Error while installing service.", ex);
             return false;
         }
     }
@@ -103,7 +103,7 @@ public static class ServiceHelper
     /// <returns>True if the service could be started without errors.</returns>
     public static bool StartService()
     {
-        log.Info("Starting service...");
+        log.Info($"Starting service...");
         try
         {
             var controller = Controller;
@@ -118,17 +118,17 @@ public static class ServiceHelper
             controller.Dispose();
             if (result)
             {
-                log.Notice("Service started successfully.");
+                log.Notice($"Service started successfully.");
             }
             else
             {
-                log.Warning("Service could not be started!");
+                log.Warning($"Service could not be started!");
             }
             return result;
         }
         catch (Exception ex)
         {
-            log.Error("Error while starting service:", ex);
+            log.Error($"Error while starting service.", ex);
             return false;
         }
     }
@@ -137,7 +137,7 @@ public static class ServiceHelper
     /// <returns>True if the service could be stopped without errors.</returns>
     public static bool StopService()
     {
-        log.Info("Stopping service...");
+        log.Info($"Stopping service...");
         try
         {
             var controller = Controller;
@@ -152,17 +152,17 @@ public static class ServiceHelper
             controller.Dispose();
             if (result)
             {
-                log.Notice("Service stopped successfully.");
+                log.Notice($"Service stopped successfully.");
             }
             else
             {
-                log.Error("Service could not be stopped!");
+                log.Error($"Service could not be stopped!");
             }
             return result;
         }
         catch (Exception ex)
         {
-            log.Error("Error while stopping service:", ex);
+            log.Error($"Error while stopping service.", ex);
             return false;
         }
     }
@@ -176,14 +176,14 @@ public static class ServiceHelper
             StopService();
         }
 
-        log.Info("Uninstalling service...");
+        log.Info($"Uninstalling service...");
         using var installer = new AssemblyInstaller(FileSystem.ProgramFileName, new string[0]);
         IDictionary state = new Hashtable();
         installer.UseNewContext = true;
         try
         {
             installer.Uninstall(state);
-            log.Notice("Service uninstalled successfully.");
+            log.Notice($"Service uninstalled successfully.");
             return true;
         }
         catch (Exception ex)
@@ -195,7 +195,7 @@ public static class ServiceHelper
             catch
             {
             }
-            log.Error("Error while uninstalling service:", ex);
+            log.Error($"Error while uninstalling service.", ex);
             return false;
         }
     }
