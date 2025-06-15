@@ -11,13 +11,13 @@ public static class ServiceHelper
 {
     #region Private Fields
 
-    static readonly Logger log = new Logger(typeof(ServiceHelper));
+    static readonly Logger log = new(typeof(ServiceHelper));
 
     #endregion Private Fields
 
     #region Private Properties
 
-    static ServiceController Controller => new ServiceController(ServiceName);
+    static ServiceController Controller => new(ServiceName);
 
     #endregion Private Properties
 
@@ -75,7 +75,7 @@ public static class ServiceHelper
     public static bool InstallService()
     {
         log.Info($"Installing service...");
-        using var installer = new AssemblyInstaller(FileSystem.ProgramFileName, new string[0]);
+        using var installer = new AssemblyInstaller(FileSystem.ProgramFileName, []);
         IDictionary state = new Hashtable();
         installer.UseNewContext = true;
         try

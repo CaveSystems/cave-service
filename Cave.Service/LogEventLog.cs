@@ -18,8 +18,8 @@ public sealed class LogEventLog : LogReceiver, IDisposable
     {
         #region Private Fields
 
-        readonly StringBuilder currentMessage = new StringBuilder();
-        readonly object writeLock = new object();
+        readonly StringBuilder currentMessage = new();
+        readonly object writeLock = new();
         bool closed = false;
         EventLogEntryType currentType = EventLogEntryType.Information;
         EventLog eventLog;
@@ -125,7 +125,6 @@ public sealed class LogEventLog : LogReceiver, IDisposable
 
     readonly EventLog eventLog;
     bool disposed;
-    LogLevel logLevel = LogLevel.Information;
 
     #endregion Private Fields
 

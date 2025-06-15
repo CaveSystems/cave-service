@@ -28,7 +28,7 @@ internal class InstallerParentConverter : ReferenceConverter
         var instance = context.Instance;
         var index1 = 0;
         var index2 = 0;
-        var objArray = new object?[standardValues.Count - 1];
+        var objArray = new object[standardValues.Count - 1];
         for (; index1 < standardValues.Count; ++index1)
         {
             if (standardValues[index1] != instance)

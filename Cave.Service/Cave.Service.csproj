@@ -1,71 +1,69 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-        <TargetFrameworks>
-            net20;net35;
-            net40;
-            net45;net46;net47;net48;net6.0;net8.0;
-        </TargetFrameworks>
-        <!--project-->
-        <RootNamespace>Cave.Service</RootNamespace>
-        <AssemblyOriginatorKeyFile>Cave.Service.snk</AssemblyOriginatorKeyFile>
-        <Product>CaveSystems Service Library</Product>
-        <PackageTags>CaveSystems Service</PackageTags>
-        <Description>CaveSystems Service Library. Provides service (windows), daemon (*nix/macos) and console (debugmode) execution. </Description>
-        <PackageProjectUrl>https://github.com/CaveSystems/cave-service</PackageProjectUrl>
-        <RepositoryUrl>https://github.com/CaveSystems/cave-service</RepositoryUrl>
-        <!--settings-->
-        <NeutralLanguage />
-        <PackageReleaseNotes />
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    </PropertyGroup>
+	<PropertyGroup>
+		<TargetFrameworks>
+			net20;net35;
+			net40;
+			net45;net46;net47;net48;
+			net8.0;
+		</TargetFrameworks>
+		<!--project-->
+		<RootNamespace>Cave.Service</RootNamespace>
+		<AssemblyOriginatorKeyFile>Cave.Service.snk</AssemblyOriginatorKeyFile>
+		<Product>CaveSystems Service Library</Product>
+		<PackageTags>CaveSystems Service</PackageTags>
+		<Description>CaveSystems Service Library. Provides service (windows), daemon (*nix/macos) and console (debugmode) execution. </Description>
+		<PackageProjectUrl>https://github.com/CaveSystems/cave-service</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/CaveSystems/cave-service</RepositoryUrl>
+		<!--settings-->
+		<NeutralLanguage />
+		<PackageReleaseNotes />
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<NoWarn>$(NoWarn);CA1416</NoWarn>
+	</PropertyGroup>
 
-    <!-- framework includes -->
-    <Choose>
-        <When Condition=" '$(TargetFramework)'=='net20' OR '$(TargetFramework)'=='net35' ">
-            <ItemGroup>
-                <Reference Include="System" />
-                <Reference Include="System.Data" />
-                <Reference Include="System.ServiceProcess" />
-                <Reference Include="System.Management" />
-                <Reference Include="System.Web" />
-                <Reference Include="System.Configuration.Install" />
-                <Reference Include="System.Windows.Forms" />
-            </ItemGroup>
-        </When>
+	<!-- framework includes -->
+	<Choose>
+		<When Condition=" '$(TargetFramework)'=='net20' OR '$(TargetFramework)'=='net35' ">
+			<ItemGroup>
+				<Reference Include="System" />
+				<Reference Include="System.Data" />
+				<Reference Include="System.ServiceProcess" />
+				<Reference Include="System.Management" />
+				<Reference Include="System.Web" />
+				<Reference Include="System.Configuration.Install" />
+				<Reference Include="System.Windows.Forms" />
+			</ItemGroup>
+		</When>
 
-        <When Condition=" $(TargetFramework.StartsWith('net4')) ">
-            <ItemGroup>
-                <Reference Include="System" />
-                <Reference Include="System.Core" />
-                <Reference Include="Microsoft.CSharp" />
-                <Reference Include="System.Data" />
-                <Reference Include="System.ServiceProcess" />
-                <Reference Include="System.Management" />
-                <Reference Include="System.Configuration.Install" />
-                <Reference Include="System.Windows.Forms" />
-            </ItemGroup>
-        </When>
+		<When Condition=" $(TargetFramework.StartsWith('net4')) ">
+			<ItemGroup>
+				<Reference Include="System" />
+				<Reference Include="System.Core" />
+				<Reference Include="Microsoft.CSharp" />
+				<Reference Include="System.Data" />
+				<Reference Include="System.ServiceProcess" />
+				<Reference Include="System.Management" />
+				<Reference Include="System.Configuration.Install" />
+				<Reference Include="System.Windows.Forms" />
+			</ItemGroup>
+		</When>
 
-        <Otherwise>
-            <!-- > net 5.0 -->
-            <ItemGroup>
-                <PackageReference Include="Microsoft.Extensions.Logging.EventLog" Version="8.0.1" />
-                <PackageReference Include="System.ServiceProcess.ServiceController" Version="8.0.1" />
-                <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-            </ItemGroup>
-        </Otherwise>
-    </Choose>
+		<Otherwise>
+			<!-- > net 5.0 -->
+			<ItemGroup>
+				<PackageReference Include="Microsoft.Extensions.Logging.EventLog" Version="9.0.6" />
+				<PackageReference Include="System.ServiceProcess.ServiceController" Version="9.0.6" />
+				<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+			</ItemGroup>
+		</Otherwise>
+	</Choose>
 
-    <!-- nuget packages -->
-    <ItemGroup>
-        <PackageReference Include="Cave.Console" Version="4.0.1" />
-        <PackageReference Include="Cave.Extensions" Version="4.0.4" />
-        <PackageReference Include="Cave.IO" Version="4.0.3" />
-        <PackageReference Include="Cave.Logging" Version="4.0.2" />
-        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-    </ItemGroup>
+	<!-- nuget packages -->
+	<ItemGroup>
+		<PackageReference Include="Cave.Console" Version="4.0.2" />
+		<PackageReference Include="Cave.Extensions" Version="4.0.5" />
+		<PackageReference Include="Cave.IO" Version="4.0.3" />
+		<PackageReference Include="Cave.Logging" Version="4.0.3" />
+	</ItemGroup>
 
 </Project>

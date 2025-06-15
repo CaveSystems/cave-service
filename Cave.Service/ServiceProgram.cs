@@ -17,7 +17,7 @@ public class ServiceProgram : System.ServiceProcess.ServiceBase
 {
     #region Private Fields
 
-    Logger log = new Logger("Service");
+    Logger log = new("Service");
     DateTime onKeyPressedEscape;
     Task? task;
 
@@ -174,7 +174,9 @@ public class ServiceProgram : System.ServiceProcess.ServiceBase
         Logger.Flush();
         if (isInteractive && wait)
         {
+#pragma warning disable CS0618
             SystemConsole.RemoveKeyPressedEvent();
+#pragma warning restore CS0618
             while (SystemConsole.KeyAvailable)
             {
                 SystemConsole.ReadKey();
@@ -465,7 +467,9 @@ public class ServiceProgram : System.ServiceProcess.ServiceBase
 
             if (SystemConsole.IsConsoleAvailable && SystemConsole.CanReadKey)
             {
+#pragma warning disable CS0618
                 SystemConsole.SetKeyPressedEvent(OnKeyPressed);
+#pragma warning restore CS0618
             }
 
             // run commandline
@@ -485,7 +489,9 @@ public class ServiceProgram : System.ServiceProcess.ServiceBase
 
             Logger.Flush();
             Logger.Close();
+#pragma warning disable CS0618
             SystemConsole.RemoveKeyPressedEvent();
+#pragma warning restore CS0618
             if (Debugger.IsAttached)
             {
                 Thread.Sleep(1000);

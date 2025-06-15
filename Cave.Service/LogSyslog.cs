@@ -10,7 +10,7 @@ public sealed class LogSyslog : LogReceiver
     #region Private Fields
 
     static LogSyslog? instance;
-    static object syncRoot = new object();
+    static object syncRoot = new();
 
     #endregion Private Fields
 

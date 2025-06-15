@@ -8,7 +8,7 @@ public sealed class ServiceParameters
 {
     #region Private Fields
 
-    Logger log = new Logger("Service");
+    Logger log = new("Service");
 
     #endregion Private Fields
 
