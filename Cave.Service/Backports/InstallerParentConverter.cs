@@ -20,11 +20,11 @@ internal class InstallerParentConverter : ReferenceConverter
 
     #region Public Methods
 
-    static readonly object[] Empty = [];
+    static readonly object[] empty = [];
 
     public override TypeConverter.StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
     {
-        var standardValues = base.GetStandardValues(context) ?? new StandardValuesCollection(Empty);
+        var standardValues = base.GetStandardValues(context) ?? new StandardValuesCollection(empty);
         var instance = context.Instance;
         var index1 = 0;
         var index2 = 0;

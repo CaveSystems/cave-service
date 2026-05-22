@@ -9,9 +9,14 @@ using System.Reflection;
 using System.Globalization;
 using System.IO;
 using Newtonsoft.Json;
+using System.Diagnostics.CodeAnalysis;
 
 namespace System.Configuration.Install;
 
+[SuppressMessage("Naming", "CC0001")]
+[SuppressMessage("Naming", "CC0002")]
+[SuppressMessage("Naming", "CC0003")]
+[SuppressMessage("Naming", "CC0004")]
 public class AssemblyInstaller : Installer
 {
     #region Private Fields

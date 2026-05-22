@@ -3,15 +3,20 @@
 #pragma warning disable CS1591
 #nullable disable
 
+using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
-using System.Collections;
-using System.ComponentModel;
 using Newtonsoft.Json.Linq;
 
 namespace System.Configuration.Install;
 
+[SuppressMessage("Naming", "CC0001")]
+[SuppressMessage("Naming", "CC0002")]
+[SuppressMessage("Naming", "CC0003")]
+[SuppressMessage("Naming", "CC0004")]
 [DefaultEvent("AfterInstall")]
 public class Installer : Component
 {
@@ -229,7 +234,7 @@ public class Installer : Component
 
     [Browsable(false)]
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-    public InstallerCollection Installers => _installers ?? (_installers = new InstallerCollection(this));
+    public InstallerCollection Installers => _installers ??= new InstallerCollection(this);
 
     [Browsable(true)]
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]

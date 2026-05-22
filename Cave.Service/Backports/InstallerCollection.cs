@@ -5,9 +5,14 @@
 #nullable disable
 
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 
 namespace System.Configuration.Install;
 
+[SuppressMessage("Naming", "CC0001")]
+[SuppressMessage("Naming", "CC0002")]
+[SuppressMessage("Naming", "CC0003")]
+[SuppressMessage("Naming", "CC0004")]
 public class InstallerCollection : CollectionBase
 {
     #region Private Fields

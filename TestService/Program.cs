@@ -21,8 +21,8 @@ class Program : ServiceProgram
         Logger log = new();
         while (!ServiceParameters.Shutdown)
         {
-            Thread.Sleep(1000);
-            if (RNG.UInt32 % 5 == 0)
+            Thread.Sleep(100);
+            if (RNG.UInt32 % 5 > 2)
             {
                 var level = (LogLevel)(RNG.UInt32 % ((int)LogLevel.Verbose + 1));
                 log.Log(level, $"Message of level {level}.");

@@ -22,12 +22,12 @@ public class InstallContext
         for (var index = 0; index < args.Length; ++index)
         {
             if (args[index].StartsWith("-", StringComparison.Ordinal))
-                args[index] = args[index].Substring(1);
+                args[index] = args[index][1..];
             var length = args[index].IndexOf('=');
             if (length < 0)
                 stringDictionary[args[index].ToLower(CultureInfo.InvariantCulture)] = "";
             else
-                stringDictionary[args[index].Substring(0, length).ToLower(CultureInfo.InvariantCulture)] = args[index].Substring(length + 1);
+                stringDictionary[args[index][..length].ToLower(CultureInfo.InvariantCulture)] = args[index][(length + 1)..];
         }
         return stringDictionary;
     }

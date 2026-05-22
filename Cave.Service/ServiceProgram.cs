@@ -15,15 +15,29 @@ namespace Cave.Service;
 [DesignerCategory("Code")]
 public class ServiceProgram : System.ServiceProcess.ServiceBase
 {
-    #region Private Fields
-
     Logger log = new("Service");
     DateTime onKeyPressedEscape;
     Task? task;
 
-    #endregion Private Fields
-
     #region Private Methods
+
+    /// <summary>
+    /// Called when initializing the log console.
+    /// </summary>
+    /// <param name="console">The log console being initialized.</param>
+    protected virtual void OnInitConsole(ILogConsole console) { }
+
+    /// <summary>
+    /// Called when an event log is being initialized.
+    /// </summary>
+    /// <param name="eventLog">The event log being initialized.</param>
+    protected virtual void OnInitEventLog(LogEventLog eventLog) { }
+
+    /// <summary>
+    /// Called when initializing the syslog.
+    /// </summary>
+    /// <param name="syslog">The syslog being initialized.</param>
+    protected virtual void OnInitSyslog(LogSyslog syslog) { }
 
     /// <summary>Does a commandline run.</summary>
     void CommandLineRun()
@@ -174,9 +188,6 @@ public class ServiceProgram : System.ServiceProcess.ServiceBase
         Logger.Flush();
         if (isInteractive && wait)
         {
-#pragma warning disable CS0618
-            SystemConsole.RemoveKeyPressedEvent();
-#pragma warning restore CS0618
             while (SystemConsole.KeyAvailable)
             {
                 SystemConsole.ReadKey();
@@ -205,7 +216,9 @@ public class ServiceProgram : System.ServiceProcess.ServiceBase
                 throw new NotSupportedException("Service requires administration rights!");
             }
 
-            LogSystem = new LogEventLog(EventLog, ServiceName);
+            var logEventLog = new LogEventLog(EventLog, ServiceName);
+            OnInitEventLog(logEventLog);
+            LogSystem = logEventLog;
         }
         else
         {
@@ -213,13 +226,30 @@ public class ServiceProgram : System.ServiceProcess.ServiceBase
             if (!CommandlineArguments.IsOptionPresent("daemon"))
             {
                 // no daemon -> log console
-                LogConsole = LogConsole.StartNew();
+                var flags = LogConsoleFlags.DefaultShort;
+                if (CommandlineArguments.IsOptionPresent("long"))
+                {
+                    flags = LogConsoleFlags.Default;
+                }
+                if (CommandlineArguments.IsOptionPresent("ansi"))
+                {
+                    var tty = CommandlineArguments.GetFirstOptionValue("ansi");
+                    var ansiWriter = tty != null ? AnsiWriter.Device(tty) : null;
+                    var logAnsiConsole = LogAnsiConsole.StartNew(ansiWriter, flags);
+                    OnInitConsole(logAnsiConsole);
+                    LogConsole = logAnsiConsole;
+                }
+                else
+                {
+                    var logConsole = Console.LogConsole.StartNew(flags);
+                    OnInitConsole(logConsole);
+                    LogConsole = logConsole;
+                }
                 LogConsole.Title = ServiceName + " v" + VersionInfo.InformalVersion;
                 if (CommandlineArguments.IsOptionPresent("debug"))
                 {
                     LogConsole.Level = LogLevel.Debug;
                 }
-
                 if (CommandlineArguments.IsOptionPresent("verbose"))
                 {
                     LogConsole.Level = LogLevel.Verbose;
@@ -230,15 +260,15 @@ public class ServiceProgram : System.ServiceProcess.ServiceBase
             LogSystem = LogConsole;
             if (Platform.Type == PlatformType.Linux)
             {
-                LogSystem = LogSyslog.Create();
+                var logSyslog = LogSyslog.Create();
+                OnInitSyslog(logSyslog);
+                LogSystem = logSyslog;
             }
         }
 
         log.Info($"Service <cyan>{ServiceName}<default> initialized!");
     }
 
-    /// <summary>Runs the worker. Used by Service and CommandLine.</summary>
-    /// <exception cref="System.InvalidOperationException">Throws if another instance is alreaqdy running.</exception>
     void RunWorker()
     {
         log.Debug($"Enter Service Mutex");
@@ -290,6 +320,30 @@ public class ServiceProgram : System.ServiceProcess.ServiceBase
 
     #region Protected Methods
 
+    /// <summary>Tells the worker to shutdown by setting the <see cref="ServiceParameters"/>.</summary>
+    protected override void OnStop()
+    {
+        if (ServiceParameters == null)
+        {
+            return;
+        }
+
+        log.Info($"Stopping service <cyan>{ServiceName}<default>...");
+        ServiceParameters.IsStopping = true;
+        if (!ServiceParameters.CommandLineMode)
+        {
+            base.OnStop();
+        }
+
+        ServiceParameters.CommitShutdown();
+        if (task != null)
+        {
+            task.Wait();
+            task = null;
+        }
+        log.Info($"Service <cyan>{ServiceName}<default> stopped.");
+    }
+
     /// <summary>Shows the help for this instance in commandline mode.</summary>
     protected virtual void Help()
     {
@@ -327,30 +381,6 @@ public class ServiceProgram : System.ServiceProcess.ServiceBase
             base.OnStop();
         }, TaskCreationOptions.LongRunning);
         log.Info($"Service <cyan>{ServiceName}<default> started.");
-    }
-
-    /// <summary>Tells the worker to shutdown by setting the <see cref="ServiceParameters"/>.</summary>
-    protected override void OnStop()
-    {
-        if (ServiceParameters == null)
-        {
-            return;
-        }
-
-        log.Info($"Stopping service <cyan>{ServiceName}<default>...");
-        ServiceParameters.IsStopping = true;
-        if (!ServiceParameters.CommandLineMode)
-        {
-            base.OnStop();
-        }
-
-        ServiceParameters.CommitShutdown();
-        if (task != null)
-        {
-            task.Wait();
-            task = null;
-        }
-        log.Info($"Service <cyan>{ServiceName}<default> stopped.");
     }
 
     /// <summary>Worker function to be implemented by the real program.</summary>
@@ -426,7 +456,7 @@ public class ServiceProgram : System.ServiceProcess.ServiceBase
 
     /// <summary>Gets the log console used. This may be null.</summary>
     /// <value>The log console or null.</value>
-    public LogConsole? LogConsole { get; private set; }
+    public ILogConsole? LogConsole { get; private set; }
 
     /// <summary>Gets or sets the log file used. This may be null.</summary>
     /// <value>The log file or null.</value>
@@ -434,7 +464,7 @@ public class ServiceProgram : System.ServiceProcess.ServiceBase
 
     /// <summary>Gets the log system used. This may be null.</summary>
     /// <value>The log system or null.</value>
-    public LogReceiver? LogSystem { get; private set; }
+    public ILogReceiver? LogSystem { get; private set; }
 
     /// <summary>Gets the service parameters.</summary>
     /// <value>The service parameters.</value>
@@ -467,9 +497,8 @@ public class ServiceProgram : System.ServiceProcess.ServiceBase
 
             if (SystemConsole.IsConsoleAvailable && SystemConsole.CanReadKey)
             {
-#pragma warning disable CS0618
-                SystemConsole.SetKeyPressedEvent(OnKeyPressed);
-#pragma warning restore CS0618
+                SystemConsole.KeyPressed += OnKeyPressed;
+                SystemConsole.StartKeyPressedMonitoring();
             }
 
             // run commandline
@@ -489,9 +518,6 @@ public class ServiceProgram : System.ServiceProcess.ServiceBase
 
             Logger.Flush();
             Logger.Close();
-#pragma warning disable CS0618
-            SystemConsole.RemoveKeyPressedEvent();
-#pragma warning restore CS0618
             if (Debugger.IsAttached)
             {
                 Thread.Sleep(1000);
